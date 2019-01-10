@@ -4,7 +4,8 @@
   "description": "A library of reusable web components for rapid development",
   "main": "index.js",
   "scripts": {
-    "start": "parcel src/index.js",
+    "start": "parcel watch src/index.js",
+    "dev": "parcel demo/index.html -d docs",
     "build": "parcel build src/index.js",
     "demo": "parcel demo/index.html -d docs",
     "build-demo": "parcel build demo/index.html -d docs",

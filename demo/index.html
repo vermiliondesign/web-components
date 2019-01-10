@@ -22,28 +22,31 @@
 
     <section class="component" id="accordion">
       <h2>Accordion</h2>
-      <vm-accordion title="Accordion Title">
-        This is the content
-      </vm-accordion>
+      <div class="container">
 
-      <vm-accordion title="A Second Accordion" openIcon="&#9660;" closeIcon="&#9650;">
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. In velit elit, tristique eu condimentum a, lobortis
-          vel felis.
-          Sed ligula risus, lobortis in ipsum at, elementum cursus tortor. Nulla vehicula felis ut ante suscipit, sed
-          euismod
-          nisi eleifend. Sed rhoncus metus nec eros maximus, blandit tincidunt neque tristique. Maecenas nec
-          condimentum
-          ipsum.
-          Etiam tempus, metus sit amet elementum eleifend, velit sem auctor dui, nec vehicula ante ligula sed leo.
-          Mauris
-          a justo
-          augue. Sed non aliquam purus, a malesuada dui. Sed quis augue ante. Aenean lacinia suscipit lectus vitae
-          congue. Duis
-          suscipit metus quis nunc interdum varius. Proin sagittis sagittis sollicitudin.</p>
-      </vm-accordion>
+        <vm-accordion title="Accordion Title">
+          This is the content
+        </vm-accordion>
 
-      <h3>Usage:</h3>
-      <pre>
+        <vm-accordion title="A Second Accordion" openIcon="&#9660;" closeIcon="&#9650;">
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. In velit elit, tristique eu condimentum a,
+            lobortis
+            vel felis.
+            Sed ligula risus, lobortis in ipsum at, elementum cursus tortor. Nulla vehicula felis ut ante suscipit, sed
+            euismod
+            nisi eleifend. Sed rhoncus metus nec eros maximus, blandit tincidunt neque tristique. Maecenas nec
+            condimentum
+            ipsum.
+            Etiam tempus, metus sit amet elementum eleifend, velit sem auctor dui, nec vehicula ante ligula sed leo.
+            Mauris
+            a justo
+            augue. Sed non aliquam purus, a malesuada dui. Sed quis augue ante. Aenean lacinia suscipit lectus vitae
+            congue. Duis
+            suscipit metus quis nunc interdum varius. Proin sagittis sagittis sollicitudin.</p>
+        </vm-accordion>
+
+        <h3>Usage:</h3>
+        <pre>
   HTML:  
   <code class="language-html">
     &#x3C;vm-accordion title=&#x22;Accordion Title&#x22; openIcon=&#x22;&#x26;#9660;&#x22; closeIcon=&#x22;&#x26;#9650;&#x22;&#x3E;
@@ -58,9 +61,24 @@
     customElements.define('vm-accordion', Accordion);
   </code>
       </pre>
+      </div>
+
     </section>
 
+    <section class="component" id="tabbed-content">
+      <h2>Tabbed Content</h2>
 
+      <div class="container">
+        <vm-tabs background>
+          <button slot="title">Tab 1</button>
+          <button slot="title" selected>Tab 2</button>
+          <button slot="title">Tab 3</button>
+          <section>content panel 1</section>
+          <section>content panel 2</section>
+          <section>content panel 3</section>
+        </vm-tabs>
+      </div>
+    </section>
 
   </main>
 

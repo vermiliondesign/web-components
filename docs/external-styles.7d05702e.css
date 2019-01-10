@@ -21,6 +21,21 @@ pre {
   font-family: Input-Mono, Inconsolata, monaco, monospace;
 }
 
+section.component {
+  padding: 2rem 0;
+  border-bottom: solid 2px lightgrey;
+  margin-bottom: 5rem;
+}
+section.component > h2 {
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  color: #af1b1b;
+}
+section.component .container {
+  padding: 0 1.5rem;
+}
+
 /* #endregion: Base Styles */
 /* #region: Accordion */
 vm-accordion {
