@@ -6,8 +6,8 @@
   "scripts": {
     "start": "parcel src/index.js",
     "build": "parcel build src/index.js",
-    "demo": "parcel docs/index.html -d demo",
-    "build-demo": "parcel build docs/index.html -d demo",
+    "demo": "parcel demo/index.html -d docs",
+    "build-demo": "parcel build demo/index.html -d docs",
     "package": "npm run build && npm run build-demo"
   },
   "keywords": [
