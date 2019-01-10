@@ -77,6 +77,30 @@
           <section>content panel 2</section>
           <section>content panel 3</section>
         </vm-tabs>
+
+
+        <h3>Usage:</h3>
+        <pre>
+HTML:  
+  <code class="language-html">
+    &lt;vm-tabs background&gt;
+      &lt;button slot="title"&gt;Tab 1&lt;/button&gt;
+      &lt;button slot="title" selected&gt;Tab 2&lt;/button&gt;
+      &lt;button slot="title"&gt;Tab 3&lt;/button&gt;
+      
+      &lt;section&gt;content panel 1&lt;/section&gt;
+      &lt;section&gt;content panel 2&lt;/section&gt;
+      &lt;section&gt;content panel 3&lt;/section&gt;
+    &lt;/vm-tabs&gt;
+  </code>
+
+JavaScript:
+  <code class="language-javascript">
+    import { TabbedContent } from './dist/index';
+      ...
+    customElements.define('vm-tabs', TabbedContent);
+  </code>
+</pre>
       </div>
     </section>
 

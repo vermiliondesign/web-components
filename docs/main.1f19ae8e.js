@@ -106,1560 +106,3286 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   return newRequire;
 })({"../dist/index.js":[function(require,module,exports) {
 var define;
-parcelRequire = function (e, r, n, t) {
-  var i = "function" == typeof parcelRequire && parcelRequire,
-      o = "function" == typeof require && require;
+var global = arguments[3];
+// modules are defined as an array
+// [ module function, map of requires ]
+//
+// map of requires is short require name -> numeric require
+//
+// anything defined in a previous bundle is accessed via the
+// orig method which is the require for previous bundles
+// eslint-disable-next-line no-global-assign
+parcelRequire = function (modules, cache, entry, globalName) {
+  // Save the require from previous bundle to this closure if any
+  var previousRequire = typeof parcelRequire === 'function' && parcelRequire;
+  var nodeRequire = typeof require === 'function' && require;
 
-  function u(n, t) {
-    if (!r[n]) {
-      if (!e[n]) {
-        var f = "function" == typeof parcelRequire && parcelRequire;
-        if (!t && f) return f(n, !0);
-        if (i) return i(n, !0);
-        if (o && "string" == typeof n) return o(n);
-        var c = new Error("Cannot find module '" + n + "'");
-        throw c.code = "MODULE_NOT_FOUND", c;
+  function newRequire(name, jumped) {
+    if (!cache[name]) {
+      if (!modules[name]) {
+        // if we cannot find the module within our internal map or
+        // cache jump to the current global require ie. the last bundle
+        // that was added to the page.
+        var currentRequire = typeof parcelRequire === 'function' && parcelRequire;
+
+        if (!jumped && currentRequire) {
+          return currentRequire(name, true);
+        } // If there are other bundles on this page the require from the
+        // previous one is saved to 'previousRequire'. Repeat this as
+        // many times as there are bundles until the module is found or
+        // we exhaust the require chain.
+
+
+        if (previousRequire) {
+          return previousRequire(name, true);
+        } // Try the node require function if it exists.
+
+
+        if (nodeRequire && typeof name === 'string') {
+          return nodeRequire(name);
+        }
+
+        var err = new Error('Cannot find module \'' + name + '\'');
+        err.code = 'MODULE_NOT_FOUND';
+        throw err;
       }
 
-      p.resolve = function (r) {
-        return e[n][1][r] || r;
-      }, p.cache = {};
-      var l = r[n] = new u.Module(n);
-      e[n][0].call(l.exports, p, l, l.exports, this);
+      localRequire.resolve = resolve;
+      localRequire.cache = {};
+      var module = cache[name] = new newRequire.Module(name);
+      modules[name][0].call(module.exports, localRequire, module, module.exports, this);
     }
 
-    return r[n].exports;
+    return cache[name].exports;
 
-    function p(e) {
-      return u(p.resolve(e));
+    function localRequire(x) {
+      return newRequire(localRequire.resolve(x));
+    }
+
+    function resolve(x) {
+      return modules[name][1][x] || x;
     }
   }
 
-  u.isParcelRequire = !0, u.Module = function (e) {
-    this.id = e, this.bundle = u, this.exports = {};
-  }, u.modules = e, u.cache = r, u.parent = i, u.register = function (r, n) {
-    e[r] = [function (e, r) {
-      r.exports = n;
+  function Module(moduleName) {
+    this.id = moduleName;
+    this.bundle = newRequire;
+    this.exports = {};
+  }
+
+  newRequire.isParcelRequire = true;
+  newRequire.Module = Module;
+  newRequire.modules = modules;
+  newRequire.cache = cache;
+  newRequire.parent = previousRequire;
+
+  newRequire.register = function (id, exports) {
+    modules[id] = [function (require, module) {
+      module.exports = exports;
     }, {}];
   };
 
-  for (var f = 0; f < n.length; f++) u(n[f]);
-
-  if (n.length) {
-    var c = u(n[n.length - 1]);
-    "object" == typeof exports && "undefined" != typeof module ? module.exports = c : "function" == typeof define && define.amd ? define(function () {
-      return c;
-    }) : t && (this[t] = c);
+  for (var i = 0; i < entry.length; i++) {
+    newRequire(entry[i]);
   }
 
-  return u;
+  if (entry.length) {
+    // Expose entry point to Node, AMD or browser globals
+    // Based on https://github.com/ForbesLindesay/umd/blob/master/template.js
+    var mainExports = newRequire(entry[entry.length - 1]); // CommonJS
+
+    if (typeof exports === "object" && typeof module !== "undefined") {
+      module.exports = mainExports; // RequireJS
+    } else if (typeof define === "function" && define.amd) {
+      define(function () {
+        return mainExports;
+      }); // <script>
+    } else if (globalName) {
+      this[globalName] = mainExports;
+    }
+  } // Override the current require with this new one
+
+
+  return newRequire;
 }({
-  "ctdA": [function (require, module, exports) {
+  "polyfill.js": [function (require, module, exports) {
     "use strict";
 
-    function t() {
+    Object.defineProperty(exports, "__esModule", {
+      value: true
+    });
+    exports.execPolyfill = execPolyfill;
+
+    function execPolyfill() {
       (function () {
-        !function () {
-          function t() {
-            this.a = new Map(), this.l = new Map(), this.o = new Map(), this.m = new Set(), this.D = new MutationObserver(this.F.bind(this)), this.f = null, this.L = !0, this.h = !1, this.g(document);
+        // CustomElementsV1.min.js v1 polyfill from https://github.com/webcomponents/webcomponentsjs/tree/v1/src/CustomElements/v1.
+
+        /*
+         Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+         This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+         The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+         The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+         Code distributed by Google as part of the polymer project is also
+         subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+        */
+        'use strict';
+
+        (function () {
+          function q(a) {
+            return l.test(a) && -1 === r.indexOf(a);
           }
 
-          var e = document,
-              o = window,
+          function e() {
+            this.a = new Map();
+            this.l = new Map();
+            this.o = new Map();
+            this.m = new Set();
+            this.D = new MutationObserver(this.F.bind(this));
+            this.f = null;
+            this.L = !0;
+            this.h = !1;
+            this.g(document);
+          }
+
+          var g = document,
+              f = window,
               r = "annotation-xml color-profile font-face font-face-src font-face-uri font-face-format font-face-name missing-glyph".split(" "),
-              n = /^[a-z][.0-9_a-z]*-[\-.0-9_a-z]*$/;
-          t.prototype = {
-            J: function (t, o) {
-              function i(t) {
-                var e = s[t];
-                if (void 0 !== e && "function" != typeof e) throw Error(a + " '" + t + "' is not a Function");
-                return e;
+              l = /^[a-z][.0-9_a-z]*-[\-.0-9_a-z]*$/;
+          e.prototype = {
+            J: function (a, b) {
+              function c(a) {
+                var b = m[a];
+                if (void 0 !== b && "function" !== typeof b) throw Error(d + " '" + a + "' is not a Function");
+                return b;
               }
 
-              if (t = t.toString().toLowerCase(), "function" != typeof o) throw new TypeError("constructor must be a Constructor");
-              if (!function (t) {
-                return n.test(t) && -1 === r.indexOf(t);
-              }(t)) throw new SyntaxError("The element name '" + t + "' is not valid.");
-              if (this.a.has(t)) throw Error("An element with name '" + t + "' is already defined");
-              if (this.l.has(o)) throw Error("Definition failed for '" + t + "': The constructor is already used.");
-              var a = t,
-                  s = o.prototype;
-              if ("object" != typeof s) throw new TypeError("Definition failed for '" + t + "': constructor.prototype must be an object");
-              var l = i("connectedCallback"),
-                  c = i("disconnectedCallback"),
-                  u = i("attributeChangedCallback");
-              this.a.set(a, {
-                name: t,
-                localName: a,
-                constructor: o,
-                w: l,
-                A: c,
-                v: u,
-                K: o.observedAttributes || []
-              }), this.l.set(o, a), this.b(e.childNodes), (l = this.o.get(a)) && (l.resolve(void 0), this.o.delete(a));
+              a = a.toString().toLowerCase();
+              if ("function" !== typeof b) throw new TypeError("constructor must be a Constructor");
+              if (!q(a)) throw new SyntaxError("The element name '" + a + "' is not valid.");
+              if (this.a.has(a)) throw Error("An element with name '" + a + "' is already defined");
+              if (this.l.has(b)) throw Error("Definition failed for '" + a + "': The constructor is already used.");
+              var d = a,
+                  m = b.prototype;
+              if ("object" !== typeof m) throw new TypeError("Definition failed for '" + a + "': constructor.prototype must be an object");
+              var e = c("connectedCallback"),
+                  f = c("disconnectedCallback"),
+                  h = c("attributeChangedCallback");
+              this.a.set(d, {
+                name: a,
+                localName: d,
+                constructor: b,
+                w: e,
+                A: f,
+                v: h,
+                K: b.observedAttributes || []
+              });
+              this.l.set(b, d);
+              this.b(g.childNodes);
+              if (e = this.o.get(d)) e.resolve(void 0), this.o.delete(d);
             },
-            get: function (t) {
-              return (t = this.a.get(t)) ? t.constructor : void 0;
+            get: function (a) {
+              return (a = this.a.get(a)) ? a.constructor : void 0;
             },
-            M: function (t) {
-              if (!n.test(t)) return Promise.reject(new SyntaxError("The element name '" + t + "' is not valid."));
-              if (this.a.has(t)) return Promise.resolve();
-              var e = {
+            M: function (a) {
+              if (!l.test(a)) return Promise.reject(new SyntaxError("The element name '" + a + "' is not valid."));
+              if (this.a.has(a)) return Promise.resolve();
+              var b = {
                 B: null
               };
-              return e.B = new Promise(function (t) {
-                e.resolve = t;
-              }), this.o.set(t, e), e.B;
+              b.B = new Promise(function (a) {
+                b.resolve = a;
+              });
+              this.o.set(a, b);
+              return b.B;
             },
             C: function () {
-              this.h && (console.warn("flush!!!"), this.m.forEach(function (t) {
-                this.s(t.takeRecords());
+              this.h && (console.warn("flush!!!"), this.m.forEach(function (a) {
+                this.s(a.takeRecords());
               }, this));
             },
-            H: function (t) {
-              this.f = t;
+            H: function (a) {
+              this.f = a;
             },
-            g: function (t) {
-              t.c = new MutationObserver(this.s.bind(this)), t.c.observe(t, {
+            g: function (a) {
+              a.c = new MutationObserver(this.s.bind(this));
+              a.c.observe(a, {
                 childList: !0,
                 subtree: !0
-              }), this.h && this.m.add(t.c);
+              });
+              this.h && this.m.add(a.c);
             },
-            I: function (t) {
-              t.c && (t.c.disconnect(), t.c = null, this.h && this.m.delete(t.c));
+            I: function (a) {
+              a.c && (a.c.disconnect(), a.c = null, this.h && this.m.delete(a.c));
             },
-            s: function (t) {
-              for (var e = 0; e < t.length; e++) {
-                var o = t[e];
-                "childList" === o.type && (this.b(o.addedNodes), this.G(o.removedNodes));
+            s: function (a) {
+              for (var b = 0; b < a.length; b++) {
+                var c = a[b];
+                "childList" === c.type && (this.b(c.addedNodes), this.G(c.removedNodes));
               }
             },
-            b: function (t) {
-              for (var o = 0; o < t.length; o++) {
-                var r = t[o];
+            b: function (a) {
+              for (var b = 0; b < a.length; b++) {
+                var c = a[b];
 
-                if (r.nodeType === Node.ELEMENT_NODE) {
-                  this.I(r), r = e.createTreeWalker(r, NodeFilter.SHOW_ELEMENT, null, !1);
+                if (c.nodeType === Node.ELEMENT_NODE) {
+                  this.I(c);
+                  c = g.createTreeWalker(c, NodeFilter.SHOW_ELEMENT, null, !1);
 
                   do {
-                    var n = r.currentNode,
-                        i = this.a.get(n.localName);
+                    var d = c.currentNode,
+                        e = this.a.get(d.localName);
+                    e && (d.j || this.u(d, e, !0), d.j && !d.i && (d.i = !0, e && e.w && e.w.call(d)));
+                    d.shadowRoot && this.b(d.shadowRoot.childNodes);
 
-                    if (i && (n.j || this.u(n, i, !0), n.j && !n.i && (n.i = !0, i && i.w && i.w.call(n))), n.shadowRoot && this.b(n.shadowRoot.childNodes), "LINK" === n.tagName) {
-                      var a = function () {
-                        var t = n;
+                    if ("LINK" === d.tagName) {
+                      var f = function () {
+                        var a = d;
                         return function () {
-                          t.removeEventListener("load", a), this.g(t.import), this.b(t.import.childNodes);
+                          a.removeEventListener("load", f);
+                          this.g(a.import);
+                          this.b(a.import.childNodes);
                         }.bind(this);
                       }.call(this);
 
-                      n.import ? a() : n.addEventListener("load", a);
+                      d.import ? f() : d.addEventListener("load", f);
                     }
-                  } while (r.nextNode());
+                  } while (c.nextNode());
                 }
               }
             },
-            G: function (t) {
-              for (var o = 0; o < t.length; o++) {
-                var r = t[o];
+            G: function (a) {
+              for (var b = 0; b < a.length; b++) {
+                var c = a[b];
 
-                if (r.nodeType === Node.ELEMENT_NODE) {
-                  this.g(r), r = e.createTreeWalker(r, NodeFilter.SHOW_ELEMENT, null, !1);
+                if (c.nodeType === Node.ELEMENT_NODE) {
+                  this.g(c);
+                  c = g.createTreeWalker(c, NodeFilter.SHOW_ELEMENT, null, !1);
 
                   do {
-                    var n = r.currentNode;
+                    var d = c.currentNode;
 
-                    if (n.j && n.i) {
-                      n.i = !1;
-                      var i = this.a.get(n.localName);
-                      i && i.A && i.A.call(n);
+                    if (d.j && d.i) {
+                      d.i = !1;
+                      var e = this.a.get(d.localName);
+                      e && e.A && e.A.call(d);
                     }
-                  } while (r.nextNode());
+                  } while (c.nextNode());
                 }
               }
             },
-            u: function (t, e, o) {
-              if (t.__proto__ = e.constructor.prototype, o && (this.H(t), t.j = !0, new e.constructor(), console.assert(null == this.f)), o = e.K, e.v && 0 < o.length) for (this.D.observe(t, {
+            u: function (a, b, c) {
+              a.__proto__ = b.constructor.prototype;
+              c && (this.H(a), a.j = !0, new b.constructor(), console.assert(null == this.f));
+              c = b.K;
+              if (b.v && 0 < c.length) for (this.D.observe(a, {
                 attributes: !0,
                 attributeOldValue: !0,
-                attributeFilter: o
-              }), e = 0; e < o.length; e++) {
-                var r = o[e];
+                attributeFilter: c
+              }), b = 0; b < c.length; b++) {
+                var d = c[b];
 
-                if (t.hasAttribute(r)) {
-                  var n = t.getAttribute(r);
-                  t.v(r, null, n);
+                if (a.hasAttribute(d)) {
+                  var e = a.getAttribute(d);
+                  a.v(d, null, e);
                 }
               }
             },
-            F: function (t) {
-              for (var e = 0; e < t.length; e++) {
-                var o = t[e];
+            F: function (a) {
+              for (var b = 0; b < a.length; b++) {
+                var c = a[b];
 
-                if ("attributes" === o.type) {
-                  var r = o.attributeName,
-                      n = o.oldValue,
-                      i = o.target,
-                      a = i.getAttribute(r);
-                  i.attributeChangedCallback(r, n, a, o.attributeNamespace);
+                if ("attributes" === c.type) {
+                  var d = c.attributeName,
+                      e = c.oldValue,
+                      f = c.target,
+                      g = f.getAttribute(d);
+                  f.attributeChangedCallback(d, e, g, c.attributeNamespace);
                 }
               }
             }
-          }, window.CustomElementsRegistry = t, t.prototype.define = t.prototype.J, t.prototype.get = t.prototype.get, t.prototype.whenDefined = t.prototype.M, t.prototype.flush = t.prototype.C, t.prototype.polyfilled = t.prototype.L, t.prototype.enableFlush = t.prototype.h;
-          var i = o.HTMLElement;
-          o.HTMLElement = function () {
-            var t = o.customElements;
+          };
+          window.CustomElementsRegistry = e;
+          e.prototype.define = e.prototype.J;
+          e.prototype.get = e.prototype.get;
+          e.prototype.whenDefined = e.prototype.M;
+          e.prototype.flush = e.prototype.C;
+          e.prototype.polyfilled = e.prototype.L;
+          e.prototype.enableFlush = e.prototype.h;
+          var h = f.HTMLElement;
 
-            if (t.f) {
-              var r = t.f;
-              return t.f = null, r;
+          f.HTMLElement = function () {
+            var a = f.customElements;
+
+            if (a.f) {
+              var b = a.f;
+              a.f = null;
+              return b;
             }
 
-            if (this.constructor) return t = t.l.get(this.constructor), e.b(t, !1);
+            if (this.constructor) return a = a.l.get(this.constructor), g.b(a, !1);
             throw Error("unknown constructor. Did you call customElements.define()?");
-          }, o.HTMLElement.prototype = Object.create(i.prototype), Object.defineProperty(o.HTMLElement.prototype, "constructor", {
-            value: o.HTMLElement
-          });
-          i = "Button Canvas Data Head Mod TableCell TableCol Anchor Area Base Body BR DataList Details Dialog Div DList Embed FieldSet Form Heading HR Html IFrame Image Input Keygen Label Legend LI Link Map Media Menu MenuItem Meta Meter Object OList OptGroup Option Output Paragraph Param Picture Pre Progress Quote Script Select Slot Source Span Style TableCaption Table TableRow TableSection Template TextArea Time Title Track UList Unknown".split(" ");
+          };
 
-          for (var a = 0; a < i.length; a++) {
-            var s = window["HTML" + i[a] + "Element"];
-            s && (s.prototype.__proto__ = o.HTMLElement.prototype);
+          f.HTMLElement.prototype = Object.create(h.prototype);
+          Object.defineProperty(f.HTMLElement.prototype, "constructor", {
+            value: f.HTMLElement
+          });
+
+          for (var h = "Button Canvas Data Head Mod TableCell TableCol Anchor Area Base Body BR DataList Details Dialog Div DList Embed FieldSet Form Heading HR Html IFrame Image Input Keygen Label Legend LI Link Map Media Menu MenuItem Meta Meter Object OList OptGroup Option Output Paragraph Param Picture Pre Progress Quote Script Select Slot Source Span Style TableCaption Table TableRow TableSection Template TextArea Time Title Track UList Unknown".split(" "), k = 0; k < h.length; k++) {
+            var n = window["HTML" + h[k] + "Element"];
+            n && (n.prototype.__proto__ = f.HTMLElement.prototype);
           }
 
-          var l = e.createElement;
-          e.b = function (t, r) {
-            var n = o.customElements,
-                i = l.call(e, t),
-                a = n.a.get(t.toLowerCase());
-            return a && n.u(i, a, r), n.g(i), i;
-          }, e.createElement = function (t) {
-            return e.b(t, !0);
-          };
-          var c = e.createElementNS;
+          var t = g.createElement;
 
-          e.createElementNS = function (t, o) {
-            return "http://www.w3.org/1999/xhtml" === t ? e.createElement(o) : c.call(document, t, o);
+          g.b = function (a, b) {
+            var c = f.customElements,
+                d = t.call(g, a),
+                e = c.a.get(a.toLowerCase());
+            e && c.u(d, e, b);
+            c.g(d);
+            return d;
           };
 
-          var u = Element.prototype.attachShadow;
-          u && Object.defineProperty(Element.prototype, "attachShadow", {
-            value: function (t) {
-              return t = u.call(this, t), o.customElements.g(t), t;
+          g.createElement = function (a) {
+            return g.b(a, !0);
+          };
+
+          var u = g.createElementNS;
+
+          g.createElementNS = function (a, b) {
+            return "http://www.w3.org/1999/xhtml" === a ? g.createElement(b) : u.call(document, a, b);
+          };
+
+          var p = Element.prototype.attachShadow;
+          p && Object.defineProperty(Element.prototype, "attachShadow", {
+            value: function (a) {
+              a = p.call(this, a);
+              f.customElements.g(a);
+              return a;
             }
-          }), window.customElements = new t();
-        }();
+          });
+          window.customElements = new e();
+        })();
       }).call(this);
     }
-
-    Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.execPolyfill = t;
   }, {}],
-  "uWh2": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/directive.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.isDirective = exports.directive = void 0;
+      value: true
+    });
+    exports.isDirective = exports.directive = void 0;
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
 
-    const e = new WeakMap(),
-          t = t => (...s) => {
-      const i = t(...s);
-      return e.set(i, !0), i;
+    const directives = new WeakMap();
+    /**
+     * Brands a function as a directive so that lit-html will call the function
+     * during template rendering, rather than passing as a value.
+     *
+     * @param f The directive factory function. Must be a function that returns a
+     * function of the signature `(part: Part) => void`. The returned function will
+     * be called with the part object
+     *
+     * @example
+     *
+     * ```
+     * import {directive, html} from 'lit-html';
+     *
+     * const immutable = directive((v) => (part) => {
+     *   if (part.value !== v) {
+     *     part.setValue(v)
+     *   }
+     * });
+     * ```
+     */
+
+    const directive = f => (...args) => {
+      const d = f(...args);
+      directives.set(d, true);
+      return d;
     };
 
-    exports.directive = t;
+    exports.directive = directive;
 
-    const s = t => "function" == typeof t && e.has(t);
+    const isDirective = o => typeof o === 'function' && directives.has(o);
 
-    exports.isDirective = s;
+    exports.isDirective = isDirective;
   }, {}],
-  "2ytx": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/dom.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.removeNodes = exports.reparentNodes = exports.isCEPolyfill = void 0;
-    const e = void 0 !== window.customElements && void 0 !== window.customElements.polyfillWrapFlushCallback;
-    exports.isCEPolyfill = e;
+      value: true
+    });
+    exports.removeNodes = exports.reparentNodes = exports.isCEPolyfill = void 0;
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
 
-    const o = (e, o, l = null, s = null) => {
-      let t = o;
+    const isCEPolyfill = window.customElements !== undefined && window.customElements.polyfillWrapFlushCallback !== undefined;
+    /**
+     * Reparents nodes, starting from `startNode` (inclusive) to `endNode`
+     * (exclusive), into another container (could be the same container), before
+     * `beforeNode`. If `beforeNode` is null, it appends the nodes to the
+     * container.
+     */
 
-      for (; t !== l;) {
-        const o = t.nextSibling;
-        e.insertBefore(t, s), t = o;
+    exports.isCEPolyfill = isCEPolyfill;
+
+    const reparentNodes = (container, start, end = null, before = null) => {
+      let node = start;
+
+      while (node !== end) {
+        const n = node.nextSibling;
+        container.insertBefore(node, before);
+        node = n;
+      }
+    };
+    /**
+     * Removes nodes, starting from `startNode` (inclusive) to `endNode`
+     * (exclusive), from `container`.
+     */
+
+
+    exports.reparentNodes = reparentNodes;
+
+    const removeNodes = (container, startNode, endNode = null) => {
+      let node = startNode;
+
+      while (node !== endNode) {
+        const n = node.nextSibling;
+        container.removeChild(node);
+        node = n;
       }
     };
 
-    exports.reparentNodes = o;
-
-    const l = (e, o, l = null) => {
-      let s = o;
-
-      for (; s !== l;) {
-        const o = s.nextSibling;
-        e.removeChild(s), s = o;
-      }
-    };
-
-    exports.removeNodes = l;
+    exports.removeNodes = removeNodes;
   }, {}],
-  "pnLb": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/part.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.noChange = void 0;
-    const e = {};
-    exports.noChange = e;
+      value: true
+    });
+    exports.noChange = void 0;
+    /**
+     * @license
+     * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+
+    /**
+     * A sentinel value that signals that a value was handled by a directive and
+     * should not be written to the DOM.
+     */
+
+    const noChange = {};
+    exports.noChange = noChange;
   }, {}],
-  "Av0K": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/template.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.lastAttributeNameRegex = exports.createMarker = exports.isTemplatePartActive = exports.Template = exports.boundAttributeSuffix = exports.markerRegex = exports.nodeMarker = exports.marker = void 0;
-    const e = `{{lit-${String(Math.random()).slice(2)}}}`;
-    exports.marker = e;
-    const t = `\x3c!--${e}--\x3e`;
-    exports.nodeMarker = t;
-    const r = new RegExp(`${e}|${t}`);
-    exports.markerRegex = r;
-    const o = "$lit$";
-    exports.boundAttributeSuffix = o;
-    let s = class s {
-      constructor(t, s) {
-        this.parts = [], this.element = s;
-        let n = -1,
-            a = 0;
+      value: true
+    });
+    exports.lastAttributeNameRegex = exports.createMarker = exports.isTemplatePartActive = exports.Template = exports.boundAttributeSuffix = exports.markerRegex = exports.nodeMarker = exports.marker = void 0;
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
 
-        const p = [],
-              c = s => {
-          const d = s.content,
-                l = document.createTreeWalker(d, 133, null, !1);
-          let u, f;
+    /**
+     * An expression marker with embedded unique key to avoid collision with
+     * possible text in templates.
+     */
 
-          for (; l.nextNode();) {
-            n++, u = f;
-            const s = f = l.currentNode;
+    const marker = `{{lit-${String(Math.random()).slice(2)}}}`;
+    /**
+     * An expression marker used text-positions, multi-binding attributes, and
+     * attributes with markup-like text values.
+     */
 
-            if (1 === s.nodeType) {
-              if (s.hasAttributes()) {
-                const x = s.attributes;
-                let p = 0;
+    exports.marker = marker;
+    const nodeMarker = `<!--${marker}-->`;
+    exports.nodeMarker = nodeMarker;
+    const markerRegex = new RegExp(`${marker}|${nodeMarker}`);
+    /**
+     * Suffix appended to all bound attribute names.
+     */
 
-                for (let t = 0; t < x.length; t++) x[t].value.indexOf(e) >= 0 && p++;
+    exports.markerRegex = markerRegex;
+    const boundAttributeSuffix = '$lit$';
+    /**
+     * An updateable Template that tracks the location of dynamic parts.
+     */
 
-                for (; p-- > 0;) {
-                  const e = t.strings[a],
-                        x = i.exec(e)[2],
-                        p = x.toLowerCase() + o,
-                        c = s.getAttribute(p).split(r);
+    exports.boundAttributeSuffix = boundAttributeSuffix;
+    let Template = class Template {
+      constructor(result, element) {
+        this.parts = [];
+        this.element = element;
+        let index = -1;
+        let partIndex = 0;
+        const nodesToRemove = [];
+
+        const _prepareTemplate = template => {
+          const content = template.content; // Edge needs all 4 parameters present; IE11 needs 3rd parameter to be
+          // null
+
+          const walker = document.createTreeWalker(content, 133
+          /* NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT |
+          NodeFilter.SHOW_TEXT */
+          , null, false); // The actual previous node, accounting for removals: if a node is removed
+          // it will never be the previousNode.
+
+          let previousNode; // Used to set previousNode at the top of the loop.
+
+          let currentNode;
+
+          while (walker.nextNode()) {
+            index++;
+            previousNode = currentNode;
+            const node = currentNode = walker.currentNode;
+
+            if (node.nodeType === 1
+            /* Node.ELEMENT_NODE */
+            ) {
+                if (node.hasAttributes()) {
+                  const attributes = node.attributes; // Per
+                  // https://developer.mozilla.org/en-US/docs/Web/API/NamedNodeMap,
+                  // attributes are not guaranteed to be returned in document order.
+                  // In particular, Edge/IE can return them out of order, so we cannot
+                  // assume a correspondance between part index and attribute index.
+
+                  let count = 0;
+
+                  for (let i = 0; i < attributes.length; i++) {
+                    if (attributes[i].value.indexOf(marker) >= 0) {
+                      count++;
+                    }
+                  }
+
+                  while (count-- > 0) {
+                    // Get the template literal section leading up to the first
+                    // expression in this attribute
+                    const stringForPart = result.strings[partIndex]; // Find the attribute name
+
+                    const name = lastAttributeNameRegex.exec(stringForPart)[2]; // Find the corresponding attribute
+                    // All bound attributes have had a suffix added in
+                    // TemplateResult#getHTML to opt out of special attribute
+                    // handling. To look up the attribute value we also need to add
+                    // the suffix.
+
+                    const attributeLookupName = name.toLowerCase() + boundAttributeSuffix;
+                    const attributeValue = node.getAttribute(attributeLookupName);
+                    const strings = attributeValue.split(markerRegex);
+                    this.parts.push({
+                      type: 'attribute',
+                      index,
+                      name,
+                      strings
+                    });
+                    node.removeAttribute(attributeLookupName);
+                    partIndex += strings.length - 1;
+                  }
+                }
+
+                if (node.tagName === 'TEMPLATE') {
+                  _prepareTemplate(node);
+                }
+              } else if (node.nodeType === 3
+            /* Node.TEXT_NODE */
+            ) {
+                const nodeValue = node.nodeValue;
+
+                if (nodeValue.indexOf(marker) < 0) {
+                  continue;
+                }
+
+                const parent = node.parentNode;
+                const strings = nodeValue.split(markerRegex);
+                const lastIndex = strings.length - 1; // We have a part for each match found
+
+                partIndex += lastIndex; // Generate a new text node for each literal section
+                // These nodes are also used as the markers for node parts
+
+                for (let i = 0; i < lastIndex; i++) {
+                  parent.insertBefore(strings[i] === '' ? createMarker() : document.createTextNode(strings[i]), node);
                   this.parts.push({
-                    type: "attribute",
-                    index: n,
-                    name: x,
-                    strings: c
-                  }), s.removeAttribute(p), a += c.length - 1;
+                    type: 'node',
+                    index: index++
+                  });
+                }
+
+                parent.insertBefore(strings[lastIndex] === '' ? createMarker() : document.createTextNode(strings[lastIndex]), node);
+                nodesToRemove.push(node);
+              } else if (node.nodeType === 8
+            /* Node.COMMENT_NODE */
+            ) {
+                if (node.nodeValue === marker) {
+                  const parent = node.parentNode; // Add a new marker node to be the startNode of the Part if any of
+                  // the following are true:
+                  //  * We don't have a previousSibling
+                  //  * previousSibling is being removed (thus it's not the
+                  //    `previousNode`)
+                  //  * previousSibling is not a Text node
+                  //
+                  // TODO(justinfagnani): We should be able to use the previousNode
+                  // here as the marker node and reduce the number of extra nodes we
+                  // add to a template. See
+                  // https://github.com/PolymerLabs/lit-html/issues/147
+
+                  const previousSibling = node.previousSibling;
+
+                  if (previousSibling === null || previousSibling !== previousNode || previousSibling.nodeType !== Node.TEXT_NODE) {
+                    parent.insertBefore(createMarker(), node);
+                  } else {
+                    index--;
+                  }
+
+                  this.parts.push({
+                    type: 'node',
+                    index: index++
+                  });
+                  nodesToRemove.push(node); // If we don't have a nextSibling add a marker node.
+                  // We don't have to check if the next node is going to be removed,
+                  // because that node will induce a new marker if so.
+
+                  if (node.nextSibling === null) {
+                    parent.insertBefore(createMarker(), node);
+                  } else {
+                    index--;
+                  }
+
+                  currentNode = previousNode;
+                  partIndex++;
+                } else {
+                  let i = -1;
+
+                  while ((i = node.nodeValue.indexOf(marker, i + 1)) !== -1) {
+                    // Comment node has a binding marker inside, make an inactive part
+                    // The binding won't work, but subsequent bindings will
+                    // TODO (justinfagnani): consider whether it's even worth it to
+                    // make bindings in comments work
+                    this.parts.push({
+                      type: 'node',
+                      index: -1
+                    });
+                  }
                 }
               }
-
-              "TEMPLATE" === s.tagName && c(s);
-            } else if (3 === s.nodeType) {
-              const t = s.nodeValue;
-              if (t.indexOf(e) < 0) continue;
-              const o = s.parentNode,
-                    i = t.split(r),
-                    c = i.length - 1;
-              a += c;
-
-              for (let e = 0; e < c; e++) o.insertBefore("" === i[e] ? x() : document.createTextNode(i[e]), s), this.parts.push({
-                type: "node",
-                index: n++
-              });
-
-              o.insertBefore("" === i[c] ? x() : document.createTextNode(i[c]), s), p.push(s);
-            } else if (8 === s.nodeType) if (s.nodeValue === e) {
-              const e = s.parentNode,
-                    t = s.previousSibling;
-              null === t || t !== u || t.nodeType !== Node.TEXT_NODE ? e.insertBefore(x(), s) : n--, this.parts.push({
-                type: "node",
-                index: n++
-              }), p.push(s), null === s.nextSibling ? e.insertBefore(x(), s) : n--, f = u, a++;
-            } else {
-              let t = -1;
-
-              for (; -1 !== (t = s.nodeValue.indexOf(e, t + 1));) this.parts.push({
-                type: "node",
-                index: -1
-              });
-            }
           }
         };
 
-        c(s);
+        _prepareTemplate(element); // Remove text binding nodes after the walk to not disturb the TreeWalker
 
-        for (const e of p) e.parentNode.removeChild(e);
+
+        for (const n of nodesToRemove) {
+          n.parentNode.removeChild(n);
+        }
       }
 
     };
-    exports.Template = s;
+    exports.Template = Template;
 
-    const n = e => -1 !== e.index;
+    const isTemplatePartActive = part => part.index !== -1; // Allows `document.createComment('')` to be renamed for a
+    // small manual size-savings.
 
-    exports.isTemplatePartActive = n;
 
-    const x = () => document.createComment("");
+    exports.isTemplatePartActive = isTemplatePartActive;
 
-    exports.createMarker = x;
-    const i = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=\/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
-    exports.lastAttributeNameRegex = i;
+    const createMarker = () => document.createComment('');
+    /**
+     * This regex extracts the attribute name preceding an attribute-position
+     * expression. It does this by matching the syntax allowed for attributes
+     * against the string literal directly preceding the expression, assuming that
+     * the expression is in an attribute-value position.
+     *
+     * See attributes in the HTML spec:
+     * https://www.w3.org/TR/html5/syntax.html#attributes-0
+     *
+     * "\0-\x1F\x7F-\x9F" are Unicode control characters
+     *
+     * " \x09\x0a\x0c\x0d" are HTML space characters:
+     * https://www.w3.org/TR/html5/infrastructure.html#space-character
+     *
+     * So an attribute is:
+     *  * The name: any character except a control character, space character, ('),
+     *    ("), ">", "=", or "/"
+     *  * Followed by zero or more space characters
+     *  * Followed by "="
+     *  * Followed by zero or more space characters
+     *  * Followed by:
+     *    * Any character except space, ('), ("), "<", ">", "=", (`), or
+     *    * (") then any non-("), or
+     *    * (') then any non-(')
+     */
+
+
+    exports.createMarker = createMarker;
+    const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+    exports.lastAttributeNameRegex = lastAttributeNameRegex;
   }, {}],
-  "bn5t": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/template-instance.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.TemplateInstance = void 0;
+      value: true
+    });
+    exports.TemplateInstance = void 0;
 
-    var e = require("./dom.js"),
-        t = require("./template.js");
+    var _dom = require("./dom.js");
 
-    let s = class s {
-      constructor(e, t, s) {
-        this._parts = [], this.template = e, this.processor = t, this.options = s;
+    var _template = require("./template.js");
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+
+    /**
+     * An instance of a `Template` that can be attached to the DOM and updated
+     * with new values.
+     */
+
+
+    let TemplateInstance = class TemplateInstance {
+      constructor(template, processor, options) {
+        this._parts = [];
+        this.template = template;
+        this.processor = processor;
+        this.options = options;
       }
 
-      update(e) {
-        let t = 0;
+      update(values) {
+        let i = 0;
 
-        for (const s of this._parts) void 0 !== s && s.setValue(e[t]), t++;
+        for (const part of this._parts) {
+          if (part !== undefined) {
+            part.setValue(values[i]);
+          }
 
-        for (const s of this._parts) void 0 !== s && s.commit();
+          i++;
+        }
+
+        for (const part of this._parts) {
+          if (part !== undefined) {
+            part.commit();
+          }
+        }
       }
 
       _clone() {
-        const s = e.isCEPolyfill ? this.template.element.content.cloneNode(!0) : document.importNode(this.template.element.content, !0),
-              o = this.template.parts;
-        let n = 0,
-            i = 0;
+        // When using the Custom Elements polyfill, clone the node, rather than
+        // importing it, to keep the fragment in the template's document. This
+        // leaves the fragment inert so custom elements won't upgrade and
+        // potentially modify their contents by creating a polyfilled ShadowRoot
+        // while we traverse the tree.
+        const fragment = _dom.isCEPolyfill ? this.template.element.content.cloneNode(true) : document.importNode(this.template.element.content, true);
+        const parts = this.template.parts;
+        let partIndex = 0;
+        let nodeIndex = 0;
 
-        const r = e => {
-          const s = document.createTreeWalker(e, 133, null, !1);
-          let l = s.nextNode();
+        const _prepareInstance = fragment => {
+          // Edge needs all 4 parameters present; IE11 needs 3rd parameter to be
+          // null
+          const walker = document.createTreeWalker(fragment, 133
+          /* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */
+          , null, false);
+          let node = walker.nextNode(); // Loop through all the nodes and parts of a template
 
-          for (; n < o.length && null !== l;) {
-            const e = o[n];
-            if ((0, t.isTemplatePartActive)(e)) {
-              if (i === e.index) {
-                if ("node" === e.type) {
-                  const e = this.processor.handleTextExpression(this.options);
-                  e.insertAfterNode(l), this._parts.push(e);
-                } else this._parts.push(...this.processor.handleAttributeExpressions(l, e.name, e.strings, this.options));
+          while (partIndex < parts.length && node !== null) {
+            const part = parts[partIndex]; // Consecutive Parts may have the same node index, in the case of
+            // multiple bound attributes on an element. So each iteration we either
+            // increment the nodeIndex, if we aren't on a node with a part, or the
+            // partIndex if we are. By not incrementing the nodeIndex when we find a
+            // part, we allow for the next part to be associated with the current
+            // node if neccessasry.
 
-                n++;
-              } else i++, "TEMPLATE" === l.nodeName && r(l.content), l = s.nextNode();
-            } else this._parts.push(void 0), n++;
+            if (!(0, _template.isTemplatePartActive)(part)) {
+              this._parts.push(undefined);
+
+              partIndex++;
+            } else if (nodeIndex === part.index) {
+              if (part.type === 'node') {
+                const part = this.processor.handleTextExpression(this.options);
+                part.insertAfterNode(node);
+
+                this._parts.push(part);
+              } else {
+                this._parts.push(...this.processor.handleAttributeExpressions(node, part.name, part.strings, this.options));
+              }
+
+              partIndex++;
+            } else {
+              nodeIndex++;
+
+              if (node.nodeName === 'TEMPLATE') {
+                _prepareInstance(node.content);
+              }
+
+              node = walker.nextNode();
+            }
           }
         };
 
-        return r(s), e.isCEPolyfill && (document.adoptNode(s), customElements.upgrade(s)), s;
+        _prepareInstance(fragment);
+
+        if (_dom.isCEPolyfill) {
+          document.adoptNode(fragment);
+          customElements.upgrade(fragment);
+        }
+
+        return fragment;
       }
 
     };
-    exports.TemplateInstance = s;
+    exports.TemplateInstance = TemplateInstance;
   }, {
-    "./dom.js": "2ytx",
-    "./template.js": "Av0K"
+    "./dom.js": "../node_modules/lit-html/lib/dom.js",
+    "./template.js": "../node_modules/lit-html/lib/template.js"
   }],
-  "cVNN": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/template-result.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.SVGTemplateResult = exports.TemplateResult = void 0;
+      value: true
+    });
+    exports.SVGTemplateResult = exports.TemplateResult = void 0;
 
-    var e = require("./dom.js"),
-        t = require("./template.js");
+    var _dom = require("./dom.js");
 
-    let s = class s {
-      constructor(e, t, s, r) {
-        this.strings = e, this.values = t, this.type = s, this.processor = r;
+    var _template = require("./template.js");
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+
+    /**
+     * The return type of `html`, which holds a Template and the values from
+     * interpolated expressions.
+     */
+
+
+    let TemplateResult = class TemplateResult {
+      constructor(strings, values, type, processor) {
+        this.strings = strings;
+        this.values = values;
+        this.type = type;
+        this.processor = processor;
       }
+      /**
+       * Returns a string of HTML used to create a `<template>` element.
+       */
+
 
       getHTML() {
-        const e = this.strings.length - 1;
-        let s = "";
+        const endIndex = this.strings.length - 1;
+        let html = '';
 
-        for (let r = 0; r < e; r++) {
-          const e = this.strings[r];
-          let l = !1;
-          s += e.replace(t.lastAttributeNameRegex, (e, s, r, n) => (l = !0, s + r + t.boundAttributeSuffix + n + t.marker)), l || (s += t.nodeMarker);
+        for (let i = 0; i < endIndex; i++) {
+          const s = this.strings[i]; // This replace() call does two things:
+          // 1) Appends a suffix to all bound attribute names to opt out of special
+          // attribute value parsing that IE11 and Edge do, like for style and
+          // many SVG attributes. The Template class also appends the same suffix
+          // when looking up attributes to creat Parts.
+          // 2) Adds an unquoted-attribute-safe marker for the first expression in
+          // an attribute. Subsequent attribute expressions will use node markers,
+          // and this is safe since attributes with multiple expressions are
+          // guaranteed to be quoted.
+
+          let addedMarker = false;
+          html += s.replace(_template.lastAttributeNameRegex, (_match, whitespace, name, value) => {
+            addedMarker = true;
+            return whitespace + name + _template.boundAttributeSuffix + value + _template.marker;
+          });
+
+          if (!addedMarker) {
+            html += _template.nodeMarker;
+          }
         }
 
-        return s + this.strings[e];
+        return html + this.strings[endIndex];
       }
 
       getTemplateElement() {
-        const e = document.createElement("template");
-        return e.innerHTML = this.getHTML(), e;
+        const template = document.createElement('template');
+        template.innerHTML = this.getHTML();
+        return template;
       }
 
     };
-    exports.TemplateResult = s;
-    let r = class r extends s {
+    /**
+     * A TemplateResult for SVG fragments.
+     *
+     * This class wraps HTMl in an `<svg>` tag in order to parse its contents in the
+     * SVG namespace, then modifies the template to remove the `<svg>` tag so that
+     * clones only container the original fragment.
+     */
+
+    exports.TemplateResult = TemplateResult;
+    let SVGTemplateResult = class SVGTemplateResult extends TemplateResult {
       getHTML() {
         return `<svg>${super.getHTML()}</svg>`;
       }
 
       getTemplateElement() {
-        const t = super.getTemplateElement(),
-              s = t.content,
-              r = s.firstChild;
-        return s.removeChild(r), (0, e.reparentNodes)(s, r.firstChild), t;
+        const template = super.getTemplateElement();
+        const content = template.content;
+        const svgElement = content.firstChild;
+        content.removeChild(svgElement);
+        (0, _dom.reparentNodes)(content, svgElement.firstChild);
+        return template;
       }
 
     };
-    exports.SVGTemplateResult = r;
+    exports.SVGTemplateResult = SVGTemplateResult;
   }, {
-    "./dom.js": "2ytx",
-    "./template.js": "Av0K"
+    "./dom.js": "../node_modules/lit-html/lib/dom.js",
+    "./template.js": "../node_modules/lit-html/lib/template.js"
   }],
-  "atl2": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/parts.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.EventPart = exports.PropertyPart = exports.PropertyCommitter = exports.BooleanAttributePart = exports.NodePart = exports.AttributePart = exports.AttributeCommitter = exports.isPrimitive = void 0;
+      value: true
+    });
+    exports.EventPart = exports.PropertyPart = exports.PropertyCommitter = exports.BooleanAttributePart = exports.NodePart = exports.AttributePart = exports.AttributeCommitter = exports.isPrimitive = void 0;
 
-    var t = require("./directive.js"),
-        e = require("./dom.js"),
-        i = require("./part.js"),
-        s = require("./template-instance.js"),
-        n = require("./template-result.js"),
-        r = require("./template.js");
+    var _directive = require("./directive.js");
 
-    const o = t => null === t || !("object" == typeof t || "function" == typeof t);
+    var _dom = require("./dom.js");
 
-    exports.isPrimitive = o;
-    let a = class a {
-      constructor(t, e, i) {
-        this.dirty = !0, this.element = t, this.name = e, this.strings = i, this.parts = [];
+    var _part = require("./part.js");
 
-        for (let s = 0; s < i.length - 1; s++) this.parts[s] = this._createPart();
+    var _templateInstance = require("./template-instance.js");
+
+    var _templateResult = require("./template-result.js");
+
+    var _template = require("./template.js");
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+
+
+    const isPrimitive = value => value === null || !(typeof value === 'object' || typeof value === 'function');
+    /**
+     * Sets attribute values for AttributeParts, so that the value is only set once
+     * even if there are multiple parts for an attribute.
+     */
+
+
+    exports.isPrimitive = isPrimitive;
+    let AttributeCommitter = class AttributeCommitter {
+      constructor(element, name, strings) {
+        this.dirty = true;
+        this.element = element;
+        this.name = name;
+        this.strings = strings;
+        this.parts = [];
+
+        for (let i = 0; i < strings.length - 1; i++) {
+          this.parts[i] = this._createPart();
+        }
       }
+      /**
+       * Creates a single part. Override this to create a differnt type of part.
+       */
+
 
       _createPart() {
-        return new h(this);
+        return new AttributePart(this);
       }
 
       _getValue() {
-        const t = this.strings,
-              e = t.length - 1;
-        let i = "";
+        const strings = this.strings;
+        const l = strings.length - 1;
+        let text = '';
 
-        for (let s = 0; s < e; s++) {
-          i += t[s];
-          const e = this.parts[s];
+        for (let i = 0; i < l; i++) {
+          text += strings[i];
+          const part = this.parts[i];
 
-          if (void 0 !== e) {
-            const t = e.value;
-            if (null != t && (Array.isArray(t) || "string" != typeof t && t[Symbol.iterator])) for (const e of t) i += "string" == typeof e ? e : String(e);else i += "string" == typeof t ? t : String(t);
+          if (part !== undefined) {
+            const v = part.value;
+
+            if (v != null && (Array.isArray(v) || typeof v !== 'string' && v[Symbol.iterator])) {
+              for (const t of v) {
+                text += typeof t === 'string' ? t : String(t);
+              }
+            } else {
+              text += typeof v === 'string' ? v : String(v);
+            }
           }
         }
 
-        return i += t[e];
+        text += strings[l];
+        return text;
       }
 
       commit() {
-        this.dirty && (this.dirty = !1, this.element.setAttribute(this.name, this._getValue()));
+        if (this.dirty) {
+          this.dirty = false;
+          this.element.setAttribute(this.name, this._getValue());
+        }
       }
 
     };
-    exports.AttributeCommitter = a;
-    let h = class h {
-      constructor(t) {
-        this.value = void 0, this.committer = t;
+    exports.AttributeCommitter = AttributeCommitter;
+    let AttributePart = class AttributePart {
+      constructor(comitter) {
+        this.value = undefined;
+        this.committer = comitter;
       }
 
-      setValue(e) {
-        e === i.noChange || o(e) && e === this.value || (this.value = e, (0, t.isDirective)(e) || (this.committer.dirty = !0));
+      setValue(value) {
+        if (value !== _part.noChange && (!isPrimitive(value) || value !== this.value)) {
+          this.value = value; // If the value is a not a directive, dirty the committer so that it'll
+          // call setAttribute. If the value is a directive, it'll dirty the
+          // committer if it calls setValue().
+
+          if (!(0, _directive.isDirective)(value)) {
+            this.committer.dirty = true;
+          }
+        }
       }
 
       commit() {
-        for (; (0, t.isDirective)(this.value);) {
-          const t = this.value;
-          this.value = i.noChange, t(this);
+        while ((0, _directive.isDirective)(this.value)) {
+          const directive = this.value;
+          this.value = _part.noChange;
+          directive(this);
         }
 
-        this.value !== i.noChange && this.committer.commit();
+        if (this.value === _part.noChange) {
+          return;
+        }
+
+        this.committer.commit();
       }
 
     };
-    exports.AttributePart = h;
-    let l = class l {
-      constructor(t) {
-        this.value = void 0, this._pendingValue = void 0, this.options = t;
+    exports.AttributePart = AttributePart;
+    let NodePart = class NodePart {
+      constructor(options) {
+        this.value = undefined;
+        this._pendingValue = undefined;
+        this.options = options;
+      }
+      /**
+       * Inserts this part into a container.
+       *
+       * This part must be empty, as its contents are not automatically moved.
+       */
+
+
+      appendInto(container) {
+        this.startNode = container.appendChild((0, _template.createMarker)());
+        this.endNode = container.appendChild((0, _template.createMarker)());
+      }
+      /**
+       * Inserts this part between `ref` and `ref`'s next sibling. Both `ref` and
+       * its next sibling must be static, unchanging nodes such as those that appear
+       * in a literal section of a template.
+       *
+       * This part must be empty, as its contents are not automatically moved.
+       */
+
+
+      insertAfterNode(ref) {
+        this.startNode = ref;
+        this.endNode = ref.nextSibling;
+      }
+      /**
+       * Appends this part into a parent part.
+       *
+       * This part must be empty, as its contents are not automatically moved.
+       */
+
+
+      appendIntoPart(part) {
+        part._insert(this.startNode = (0, _template.createMarker)());
+
+        part._insert(this.endNode = (0, _template.createMarker)());
+      }
+      /**
+       * Appends this part after `ref`
+       *
+       * This part must be empty, as its contents are not automatically moved.
+       */
+
+
+      insertAfterPart(ref) {
+        ref._insert(this.startNode = (0, _template.createMarker)());
+
+        this.endNode = ref.endNode;
+        ref.endNode = this.startNode;
       }
 
-      appendInto(t) {
-        this.startNode = t.appendChild((0, r.createMarker)()), this.endNode = t.appendChild((0, r.createMarker)());
-      }
-
-      insertAfterNode(t) {
-        this.startNode = t, this.endNode = t.nextSibling;
-      }
-
-      appendIntoPart(t) {
-        t._insert(this.startNode = (0, r.createMarker)()), t._insert(this.endNode = (0, r.createMarker)());
-      }
-
-      insertAfterPart(t) {
-        t._insert(this.startNode = (0, r.createMarker)()), this.endNode = t.endNode, t.endNode = this.startNode;
-      }
-
-      setValue(t) {
-        this._pendingValue = t;
+      setValue(value) {
+        this._pendingValue = value;
       }
 
       commit() {
-        for (; (0, t.isDirective)(this._pendingValue);) {
-          const t = this._pendingValue;
-          this._pendingValue = i.noChange, t(this);
+        while ((0, _directive.isDirective)(this._pendingValue)) {
+          const directive = this._pendingValue;
+          this._pendingValue = _part.noChange;
+          directive(this);
         }
 
-        const e = this._pendingValue;
-        e !== i.noChange && (o(e) ? e !== this.value && this._commitText(e) : e instanceof n.TemplateResult ? this._commitTemplateResult(e) : e instanceof Node ? this._commitNode(e) : Array.isArray(e) || e[Symbol.iterator] ? this._commitIterable(e) : this._commitText(e));
-      }
+        const value = this._pendingValue;
 
-      _insert(t) {
-        this.endNode.parentNode.insertBefore(t, this.endNode);
-      }
+        if (value === _part.noChange) {
+          return;
+        }
 
-      _commitNode(t) {
-        this.value !== t && (this.clear(), this._insert(t), this.value = t);
-      }
-
-      _commitText(t) {
-        const e = this.startNode.nextSibling;
-        t = null == t ? "" : t, e === this.endNode.previousSibling && e.nodeType === Node.TEXT_NODE ? e.textContent = t : this._commitNode(document.createTextNode("string" == typeof t ? t : String(t))), this.value = t;
-      }
-
-      _commitTemplateResult(t) {
-        const e = this.options.templateFactory(t);
-        if (this.value && this.value.template === e) this.value.update(t.values);else {
-          const i = new s.TemplateInstance(e, t.processor, this.options),
-                n = i._clone();
-
-          i.update(t.values), this._commitNode(n), this.value = i;
+        if (isPrimitive(value)) {
+          if (value !== this.value) {
+            this._commitText(value);
+          }
+        } else if (value instanceof _templateResult.TemplateResult) {
+          this._commitTemplateResult(value);
+        } else if (value instanceof Node) {
+          this._commitNode(value);
+        } else if (Array.isArray(value) || value[Symbol.iterator]) {
+          this._commitIterable(value);
+        } else {
+          // Fallback, will render the string representation
+          this._commitText(value);
         }
       }
 
-      _commitIterable(t) {
-        Array.isArray(this.value) || (this.value = [], this.clear());
-        const e = this.value;
-        let i,
-            s = 0;
-
-        for (const n of t) void 0 === (i = e[s]) && (i = new l(this.options), e.push(i), 0 === s ? i.appendIntoPart(this) : i.insertAfterPart(e[s - 1])), i.setValue(n), i.commit(), s++;
-
-        s < e.length && (e.length = s, this.clear(i && i.endNode));
+      _insert(node) {
+        this.endNode.parentNode.insertBefore(node, this.endNode);
       }
 
-      clear(t = this.startNode) {
-        (0, e.removeNodes)(this.startNode.parentNode, t.nextSibling, this.endNode);
+      _commitNode(value) {
+        if (this.value === value) {
+          return;
+        }
+
+        this.clear();
+
+        this._insert(value);
+
+        this.value = value;
+      }
+
+      _commitText(value) {
+        const node = this.startNode.nextSibling;
+        value = value == null ? '' : value;
+
+        if (node === this.endNode.previousSibling && node.nodeType === Node.TEXT_NODE) {
+          // If we only have a single text node between the markers, we can just
+          // set its value, rather than replacing it.
+          // TODO(justinfagnani): Can we just check if this.value is primitive?
+          node.textContent = value;
+        } else {
+          this._commitNode(document.createTextNode(typeof value === 'string' ? value : String(value)));
+        }
+
+        this.value = value;
+      }
+
+      _commitTemplateResult(value) {
+        const template = this.options.templateFactory(value);
+
+        if (this.value && this.value.template === template) {
+          this.value.update(value.values);
+        } else {
+          // Make sure we propagate the template processor from the TemplateResult
+          // so that we use its syntax extension, etc. The template factory comes
+          // from the render function options so that it can control template
+          // caching and preprocessing.
+          const instance = new _templateInstance.TemplateInstance(template, value.processor, this.options);
+
+          const fragment = instance._clone();
+
+          instance.update(value.values);
+
+          this._commitNode(fragment);
+
+          this.value = instance;
+        }
+      }
+
+      _commitIterable(value) {
+        // For an Iterable, we create a new InstancePart per item, then set its
+        // value to the item. This is a little bit of overhead for every item in
+        // an Iterable, but it lets us recurse easily and efficiently update Arrays
+        // of TemplateResults that will be commonly returned from expressions like:
+        // array.map((i) => html`${i}`), by reusing existing TemplateInstances.
+        // If _value is an array, then the previous render was of an
+        // iterable and _value will contain the NodeParts from the previous
+        // render. If _value is not an array, clear this part and make a new
+        // array for NodeParts.
+        if (!Array.isArray(this.value)) {
+          this.value = [];
+          this.clear();
+        } // Lets us keep track of how many items we stamped so we can clear leftover
+        // items from a previous render
+
+
+        const itemParts = this.value;
+        let partIndex = 0;
+        let itemPart;
+
+        for (const item of value) {
+          // Try to reuse an existing part
+          itemPart = itemParts[partIndex]; // If no existing part, create a new one
+
+          if (itemPart === undefined) {
+            itemPart = new NodePart(this.options);
+            itemParts.push(itemPart);
+
+            if (partIndex === 0) {
+              itemPart.appendIntoPart(this);
+            } else {
+              itemPart.insertAfterPart(itemParts[partIndex - 1]);
+            }
+          }
+
+          itemPart.setValue(item);
+          itemPart.commit();
+          partIndex++;
+        }
+
+        if (partIndex < itemParts.length) {
+          // Truncate the parts array so _value reflects the current state
+          itemParts.length = partIndex;
+          this.clear(itemPart && itemPart.endNode);
+        }
+      }
+
+      clear(startNode = this.startNode) {
+        (0, _dom.removeNodes)(this.startNode.parentNode, startNode.nextSibling, this.endNode);
       }
 
     };
-    exports.NodePart = l;
-    let u = class u {
-      constructor(t, e, i) {
-        if (this.value = void 0, this._pendingValue = void 0, 2 !== i.length || "" !== i[0] || "" !== i[1]) throw new Error("Boolean attributes can only contain a single expression");
-        this.element = t, this.name = e, this.strings = i;
+    /**
+     * Implements a boolean attribute, roughly as defined in the HTML
+     * specification.
+     *
+     * If the value is truthy, then the attribute is present with a value of
+     * ''. If the value is falsey, the attribute is removed.
+     */
+
+    exports.NodePart = NodePart;
+    let BooleanAttributePart = class BooleanAttributePart {
+      constructor(element, name, strings) {
+        this.value = undefined;
+        this._pendingValue = undefined;
+
+        if (strings.length !== 2 || strings[0] !== '' || strings[1] !== '') {
+          throw new Error('Boolean attributes can only contain a single expression');
+        }
+
+        this.element = element;
+        this.name = name;
+        this.strings = strings;
       }
 
-      setValue(t) {
-        this._pendingValue = t;
+      setValue(value) {
+        this._pendingValue = value;
       }
 
       commit() {
-        for (; (0, t.isDirective)(this._pendingValue);) {
-          const t = this._pendingValue;
-          this._pendingValue = i.noChange, t(this);
+        while ((0, _directive.isDirective)(this._pendingValue)) {
+          const directive = this._pendingValue;
+          this._pendingValue = _part.noChange;
+          directive(this);
         }
 
-        if (this._pendingValue === i.noChange) return;
-        const e = !!this._pendingValue;
-        this.value !== e && (e ? this.element.setAttribute(this.name, "") : this.element.removeAttribute(this.name)), this.value = e, this._pendingValue = i.noChange;
+        if (this._pendingValue === _part.noChange) {
+          return;
+        }
+
+        const value = !!this._pendingValue;
+
+        if (this.value !== value) {
+          if (value) {
+            this.element.setAttribute(this.name, '');
+          } else {
+            this.element.removeAttribute(this.name);
+          }
+        }
+
+        this.value = value;
+        this._pendingValue = _part.noChange;
       }
 
     };
-    exports.BooleanAttributePart = u;
-    let d = class d extends a {
-      constructor(t, e, i) {
-        super(t, e, i), this.single = 2 === i.length && "" === i[0] && "" === i[1];
+    /**
+     * Sets attribute values for PropertyParts, so that the value is only set once
+     * even if there are multiple parts for a property.
+     *
+     * If an expression controls the whole property value, then the value is simply
+     * assigned to the property under control. If there are string literals or
+     * multiple expressions, then the strings are expressions are interpolated into
+     * a string first.
+     */
+
+    exports.BooleanAttributePart = BooleanAttributePart;
+    let PropertyCommitter = class PropertyCommitter extends AttributeCommitter {
+      constructor(element, name, strings) {
+        super(element, name, strings);
+        this.single = strings.length === 2 && strings[0] === '' && strings[1] === '';
       }
 
       _createPart() {
-        return new c(this);
+        return new PropertyPart(this);
       }
 
       _getValue() {
-        return this.single ? this.parts[0].value : super._getValue();
+        if (this.single) {
+          return this.parts[0].value;
+        }
+
+        return super._getValue();
       }
 
       commit() {
-        this.dirty && (this.dirty = !1, this.element[this.name] = this._getValue());
+        if (this.dirty) {
+          this.dirty = false;
+          this.element[this.name] = this._getValue();
+        }
       }
 
     };
-    exports.PropertyCommitter = d;
-    let c = class c extends h {};
-    exports.PropertyPart = c;
-    let p = !1;
+    exports.PropertyCommitter = PropertyCommitter;
+    let PropertyPart = class PropertyPart extends AttributePart {}; // Detect event listener options support. If the `capture` property is read
+    // from the options object, then options are supported. If not, then the thrid
+    // argument to add/removeEventListener is interpreted as the boolean capture
+    // value so we should only pass the `capture` property.
+
+    exports.PropertyPart = PropertyPart;
+    let eventOptionsSupported = false;
 
     try {
-      const t = {
+      const options = {
         get capture() {
-          return p = !0, !1;
+          eventOptionsSupported = true;
+          return false;
         }
 
       };
-      window.addEventListener("test", t, t), window.removeEventListener("test", t, t);
-    } catch (g) {}
+      window.addEventListener('test', options, options);
+      window.removeEventListener('test', options, options);
+    } catch (_e) {}
 
-    let m = class m {
-      constructor(t, e, i) {
-        this.value = void 0, this._pendingValue = void 0, this.element = t, this.eventName = e, this.eventContext = i, this._boundHandleEvent = t => this.handleEvent(t);
+    let EventPart = class EventPart {
+      constructor(element, eventName, eventContext) {
+        this.value = undefined;
+        this._pendingValue = undefined;
+        this.element = element;
+        this.eventName = eventName;
+        this.eventContext = eventContext;
+
+        this._boundHandleEvent = e => this.handleEvent(e);
       }
 
-      setValue(t) {
-        this._pendingValue = t;
+      setValue(value) {
+        this._pendingValue = value;
       }
 
       commit() {
-        for (; (0, t.isDirective)(this._pendingValue);) {
-          const t = this._pendingValue;
-          this._pendingValue = i.noChange, t(this);
+        while ((0, _directive.isDirective)(this._pendingValue)) {
+          const directive = this._pendingValue;
+          this._pendingValue = _part.noChange;
+          directive(this);
         }
 
-        if (this._pendingValue === i.noChange) return;
-        const e = this._pendingValue,
-              s = this.value,
-              n = null == e || null != s && (e.capture !== s.capture || e.once !== s.once || e.passive !== s.passive),
-              r = null != e && (null == s || n);
-        n && this.element.removeEventListener(this.eventName, this._boundHandleEvent, this._options), r && (this._options = v(e), this.element.addEventListener(this.eventName, this._boundHandleEvent, this._options)), this.value = e, this._pendingValue = i.noChange;
+        if (this._pendingValue === _part.noChange) {
+          return;
+        }
+
+        const newListener = this._pendingValue;
+        const oldListener = this.value;
+        const shouldRemoveListener = newListener == null || oldListener != null && (newListener.capture !== oldListener.capture || newListener.once !== oldListener.once || newListener.passive !== oldListener.passive);
+        const shouldAddListener = newListener != null && (oldListener == null || shouldRemoveListener);
+
+        if (shouldRemoveListener) {
+          this.element.removeEventListener(this.eventName, this._boundHandleEvent, this._options);
+        }
+
+        if (shouldAddListener) {
+          this._options = getOptions(newListener);
+          this.element.addEventListener(this.eventName, this._boundHandleEvent, this._options);
+        }
+
+        this.value = newListener;
+        this._pendingValue = _part.noChange;
       }
 
-      handleEvent(t) {
-        "function" == typeof this.value ? this.value.call(this.eventContext || this.element, t) : this.value.handleEvent(t);
+      handleEvent(event) {
+        if (typeof this.value === 'function') {
+          this.value.call(this.eventContext || this.element, event);
+        } else {
+          this.value.handleEvent(event);
+        }
       }
 
-    };
-    exports.EventPart = m;
+    }; // We copy options because of the inconsistent behavior of browsers when reading
+    // the third argument of add/removeEventListener. IE11 doesn't support options
+    // at all. Chrome 41 only reads `capture` if the argument is an object.
 
-    const v = t => t && (p ? {
-      capture: t.capture,
-      passive: t.passive,
-      once: t.once
-    } : t.capture);
+    exports.EventPart = EventPart;
+
+    const getOptions = o => o && (eventOptionsSupported ? {
+      capture: o.capture,
+      passive: o.passive,
+      once: o.once
+    } : o.capture);
   }, {
-    "./directive.js": "uWh2",
-    "./dom.js": "2ytx",
-    "./part.js": "pnLb",
-    "./template-instance.js": "bn5t",
-    "./template-result.js": "cVNN",
-    "./template.js": "Av0K"
+    "./directive.js": "../node_modules/lit-html/lib/directive.js",
+    "./dom.js": "../node_modules/lit-html/lib/dom.js",
+    "./part.js": "../node_modules/lit-html/lib/part.js",
+    "./template-instance.js": "../node_modules/lit-html/lib/template-instance.js",
+    "./template-result.js": "../node_modules/lit-html/lib/template-result.js",
+    "./template.js": "../node_modules/lit-html/lib/template.js"
   }],
-  "52LB": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/default-template-processor.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.defaultTemplateProcessor = exports.DefaultTemplateProcessor = void 0;
+      value: true
+    });
+    exports.defaultTemplateProcessor = exports.DefaultTemplateProcessor = void 0;
 
-    var e = require("./parts.js");
+    var _parts = require("./parts.js");
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
 
-    let t = class t {
-      handleAttributeExpressions(t, r, s, o) {
-        const a = r[0];
+    /**
+     * Creates Parts when a template is instantiated.
+     */
 
-        if ("." === a) {
-          return new e.PropertyCommitter(t, r.slice(1), s).parts;
+
+    let DefaultTemplateProcessor = class DefaultTemplateProcessor {
+      /**
+       * Create parts for an attribute-position binding, given the event, attribute
+       * name, and string literals.
+       *
+       * @param element The element containing the binding
+       * @param name  The attribute name
+       * @param strings The string literals. There are always at least two strings,
+       *   event for fully-controlled bindings with a single expression.
+       */
+      handleAttributeExpressions(element, name, strings, options) {
+        const prefix = name[0];
+
+        if (prefix === '.') {
+          const comitter = new _parts.PropertyCommitter(element, name.slice(1), strings);
+          return comitter.parts;
         }
 
-        return "@" === a ? [new e.EventPart(t, r.slice(1), o.eventContext)] : "?" === a ? [new e.BooleanAttributePart(t, r.slice(1), s)] : new e.AttributeCommitter(t, r, s).parts;
-      }
+        if (prefix === '@') {
+          return [new _parts.EventPart(element, name.slice(1), options.eventContext)];
+        }
 
-      handleTextExpression(t) {
-        return new e.NodePart(t);
+        if (prefix === '?') {
+          return [new _parts.BooleanAttributePart(element, name.slice(1), strings)];
+        }
+
+        const comitter = new _parts.AttributeCommitter(element, name, strings);
+        return comitter.parts;
+      }
+      /**
+       * Create parts for a text-position binding.
+       * @param templateFactory
+       */
+
+
+      handleTextExpression(options) {
+        return new _parts.NodePart(options);
       }
 
     };
-    exports.DefaultTemplateProcessor = t;
-    const r = new t();
-    exports.defaultTemplateProcessor = r;
+    exports.DefaultTemplateProcessor = DefaultTemplateProcessor;
+    const defaultTemplateProcessor = new DefaultTemplateProcessor();
+    exports.defaultTemplateProcessor = defaultTemplateProcessor;
   }, {
-    "./parts.js": "atl2"
+    "./parts.js": "../node_modules/lit-html/lib/parts.js"
   }],
-  "gbKZ": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/template-factory.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.templateFactory = t, exports.templateCaches = void 0;
+      value: true
+    });
+    exports.templateFactory = templateFactory;
+    exports.templateCaches = void 0;
 
-    var e = require("./template.js");
+    var _template = require("./template.js");
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
 
-    function t(t) {
-      let s = r.get(t.type);
-      void 0 === s && (s = {
-        stringsArray: new WeakMap(),
-        keyString: new Map()
-      }, r.set(t.type, s));
-      let n = s.stringsArray.get(t.strings);
-      if (void 0 !== n) return n;
-      const a = t.strings.join(e.marker);
-      return void 0 === (n = s.keyString.get(a)) && (n = new e.Template(t, t.getTemplateElement()), s.keyString.set(a, n)), s.stringsArray.set(t.strings, n), n;
+    /**
+     * The default TemplateFactory which caches Templates keyed on
+     * result.type and result.strings.
+     */
+
+
+    function templateFactory(result) {
+      let templateCache = templateCaches.get(result.type);
+
+      if (templateCache === undefined) {
+        templateCache = {
+          stringsArray: new WeakMap(),
+          keyString: new Map()
+        };
+        templateCaches.set(result.type, templateCache);
+      }
+
+      let template = templateCache.stringsArray.get(result.strings);
+
+      if (template !== undefined) {
+        return template;
+      } // If the TemplateStringsArray is new, generate a key from the strings
+      // This key is shared between all templates with identical content
+
+
+      const key = result.strings.join(_template.marker); // Check if we already have a Template for this key
+
+      template = templateCache.keyString.get(key);
+
+      if (template === undefined) {
+        // If we have not seen this key before, create a new Template
+        template = new _template.Template(result, result.getTemplateElement()); // Cache the Template for this key
+
+        templateCache.keyString.set(key, template);
+      } // Cache all future queries for this TemplateStringsArray
+
+
+      templateCache.stringsArray.set(result.strings, template);
+      return template;
     }
 
-    const r = new Map();
-    exports.templateCaches = r;
+    const templateCaches = new Map();
+    exports.templateCaches = templateCaches;
   }, {
-    "./template.js": "Av0K"
+    "./template.js": "../node_modules/lit-html/lib/template.js"
   }],
-  "Fhpq": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/render.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.render = exports.parts = void 0;
+      value: true
+    });
+    exports.render = exports.parts = void 0;
 
-    var e = require("./dom.js"),
-        t = require("./parts.js"),
-        r = require("./template-factory.js");
+    var _dom = require("./dom.js");
 
-    const s = new WeakMap();
-    exports.parts = s;
+    var _parts = require("./parts.js");
 
-    const o = (o, a, p) => {
-      let d = s.get(a);
-      void 0 === d && ((0, e.removeNodes)(a, a.firstChild), s.set(a, d = new t.NodePart(Object.assign({
-        templateFactory: r.templateFactory
-      }, p))), d.appendInto(a)), d.setValue(o), d.commit();
+    var _templateFactory = require("./template-factory.js");
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+
+
+    const parts = new WeakMap();
+    /**
+     * Renders a template to a container.
+     *
+     * To update a container with new values, reevaluate the template literal and
+     * call `render` with the new result.
+     *
+     * @param result a TemplateResult created by evaluating a template tag like
+     *     `html` or `svg`.
+     * @param container A DOM parent to render to. The entire contents are either
+     *     replaced, or efficiently updated if the same result type was previous
+     *     rendered there.
+     * @param options RenderOptions for the entire render tree rendered to this
+     *     container. Render options must *not* change between renders to the same
+     *     container, as those changes will not effect previously rendered DOM.
+     */
+
+    exports.parts = parts;
+
+    const render = (result, container, options) => {
+      let part = parts.get(container);
+
+      if (part === undefined) {
+        (0, _dom.removeNodes)(container, container.firstChild);
+        parts.set(container, part = new _parts.NodePart(Object.assign({
+          templateFactory: _templateFactory.templateFactory
+        }, options)));
+        part.appendInto(container);
+      }
+
+      part.setValue(result);
+      part.commit();
     };
 
-    exports.render = o;
+    exports.render = render;
   }, {
-    "./dom.js": "2ytx",
-    "./parts.js": "atl2",
-    "./template-factory.js": "gbKZ"
+    "./dom.js": "../node_modules/lit-html/lib/dom.js",
+    "./parts.js": "../node_modules/lit-html/lib/parts.js",
+    "./template-factory.js": "../node_modules/lit-html/lib/template-factory.js"
   }],
-  "SP/d": [function (require, module, exports) {
+  "../node_modules/lit-html/lit-html.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), Object.defineProperty(exports, "DefaultTemplateProcessor", {
-      enumerable: !0,
+      value: true
+    });
+    Object.defineProperty(exports, "DefaultTemplateProcessor", {
+      enumerable: true,
       get: function () {
-        return e.DefaultTemplateProcessor;
+        return _defaultTemplateProcessor.DefaultTemplateProcessor;
       }
-    }), Object.defineProperty(exports, "defaultTemplateProcessor", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "defaultTemplateProcessor", {
+      enumerable: true,
       get: function () {
-        return e.defaultTemplateProcessor;
+        return _defaultTemplateProcessor.defaultTemplateProcessor;
       }
-    }), Object.defineProperty(exports, "SVGTemplateResult", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "SVGTemplateResult", {
+      enumerable: true,
       get: function () {
-        return t.SVGTemplateResult;
+        return _templateResult.SVGTemplateResult;
       }
-    }), Object.defineProperty(exports, "TemplateResult", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "TemplateResult", {
+      enumerable: true,
       get: function () {
-        return t.TemplateResult;
+        return _templateResult.TemplateResult;
       }
-    }), Object.defineProperty(exports, "directive", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "directive", {
+      enumerable: true,
       get: function () {
-        return r.directive;
+        return _directive.directive;
       }
-    }), Object.defineProperty(exports, "isDirective", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "isDirective", {
+      enumerable: true,
       get: function () {
-        return r.isDirective;
+        return _directive.isDirective;
       }
-    }), Object.defineProperty(exports, "removeNodes", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "removeNodes", {
+      enumerable: true,
       get: function () {
-        return n.removeNodes;
+        return _dom.removeNodes;
       }
-    }), Object.defineProperty(exports, "reparentNodes", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "reparentNodes", {
+      enumerable: true,
       get: function () {
-        return n.reparentNodes;
+        return _dom.reparentNodes;
       }
-    }), Object.defineProperty(exports, "noChange", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "noChange", {
+      enumerable: true,
       get: function () {
-        return o.noChange;
+        return _part.noChange;
       }
-    }), Object.defineProperty(exports, "AttributeCommitter", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "AttributeCommitter", {
+      enumerable: true,
       get: function () {
-        return i.AttributeCommitter;
+        return _parts.AttributeCommitter;
       }
-    }), Object.defineProperty(exports, "AttributePart", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "AttributePart", {
+      enumerable: true,
       get: function () {
-        return i.AttributePart;
+        return _parts.AttributePart;
       }
-    }), Object.defineProperty(exports, "BooleanAttributePart", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "BooleanAttributePart", {
+      enumerable: true,
       get: function () {
-        return i.BooleanAttributePart;
+        return _parts.BooleanAttributePart;
       }
-    }), Object.defineProperty(exports, "EventPart", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "EventPart", {
+      enumerable: true,
       get: function () {
-        return i.EventPart;
+        return _parts.EventPart;
       }
-    }), Object.defineProperty(exports, "isPrimitive", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "isPrimitive", {
+      enumerable: true,
       get: function () {
-        return i.isPrimitive;
+        return _parts.isPrimitive;
       }
-    }), Object.defineProperty(exports, "NodePart", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "NodePart", {
+      enumerable: true,
       get: function () {
-        return i.NodePart;
+        return _parts.NodePart;
       }
-    }), Object.defineProperty(exports, "PropertyCommitter", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "PropertyCommitter", {
+      enumerable: true,
       get: function () {
-        return i.PropertyCommitter;
+        return _parts.PropertyCommitter;
       }
-    }), Object.defineProperty(exports, "PropertyPart", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "PropertyPart", {
+      enumerable: true,
       get: function () {
-        return i.PropertyPart;
+        return _parts.PropertyPart;
       }
-    }), Object.defineProperty(exports, "parts", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "parts", {
+      enumerable: true,
       get: function () {
-        return u.parts;
+        return _render.parts;
       }
-    }), Object.defineProperty(exports, "render", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "render", {
+      enumerable: true,
       get: function () {
-        return u.render;
+        return _render.render;
       }
-    }), Object.defineProperty(exports, "templateCaches", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "templateCaches", {
+      enumerable: true,
       get: function () {
-        return a.templateCaches;
+        return _templateFactory.templateCaches;
       }
-    }), Object.defineProperty(exports, "templateFactory", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "templateFactory", {
+      enumerable: true,
       get: function () {
-        return a.templateFactory;
+        return _templateFactory.templateFactory;
       }
-    }), Object.defineProperty(exports, "TemplateInstance", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "TemplateInstance", {
+      enumerable: true,
       get: function () {
-        return p.TemplateInstance;
+        return _templateInstance.TemplateInstance;
       }
-    }), Object.defineProperty(exports, "createMarker", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "createMarker", {
+      enumerable: true,
       get: function () {
-        return s.createMarker;
+        return _template.createMarker;
       }
-    }), Object.defineProperty(exports, "isTemplatePartActive", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "isTemplatePartActive", {
+      enumerable: true,
       get: function () {
-        return s.isTemplatePartActive;
+        return _template.isTemplatePartActive;
       }
-    }), Object.defineProperty(exports, "Template", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "Template", {
+      enumerable: true,
       get: function () {
-        return s.Template;
+        return _template.Template;
       }
-    }), exports.svg = exports.html = void 0;
+    });
+    exports.svg = exports.html = void 0;
 
-    var e = require("./lib/default-template-processor.js"),
-        t = require("./lib/template-result.js"),
-        r = require("./lib/directive.js"),
-        n = require("./lib/dom.js"),
-        o = require("./lib/part.js"),
-        i = require("./lib/parts.js"),
-        u = require("./lib/render.js"),
-        a = require("./lib/template-factory.js"),
-        p = require("./lib/template-instance.js"),
-        s = require("./lib/template.js");
+    var _defaultTemplateProcessor = require("./lib/default-template-processor.js");
 
-    const l = (r, ...n) => new t.TemplateResult(r, n, "html", e.defaultTemplateProcessor);
+    var _templateResult = require("./lib/template-result.js");
 
-    exports.html = l;
+    var _directive = require("./lib/directive.js");
 
-    const c = (r, ...n) => new t.SVGTemplateResult(r, n, "svg", e.defaultTemplateProcessor);
+    var _dom = require("./lib/dom.js");
 
-    exports.svg = c;
+    var _part = require("./lib/part.js");
+
+    var _parts = require("./lib/parts.js");
+
+    var _render = require("./lib/render.js");
+
+    var _templateFactory = require("./lib/template-factory.js");
+
+    var _templateInstance = require("./lib/template-instance.js");
+
+    var _template = require("./lib/template.js");
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    // TODO(justinfagnani): remove line when we get NodePart moving methods
+
+    /**
+     * Interprets a template literal as an HTML template that can efficiently
+     * render to and update a container.
+     */
+
+
+    const html = (strings, ...values) => new _templateResult.TemplateResult(strings, values, 'html', _defaultTemplateProcessor.defaultTemplateProcessor);
+    /**
+     * Interprets a template literal as an SVG template that can efficiently
+     * render to and update a container.
+     */
+
+
+    exports.html = html;
+
+    const svg = (strings, ...values) => new _templateResult.SVGTemplateResult(strings, values, 'svg', _defaultTemplateProcessor.defaultTemplateProcessor);
+
+    exports.svg = svg;
   }, {
-    "./lib/default-template-processor.js": "52LB",
-    "./lib/template-result.js": "cVNN",
-    "./lib/directive.js": "uWh2",
-    "./lib/dom.js": "2ytx",
-    "./lib/part.js": "pnLb",
-    "./lib/parts.js": "atl2",
-    "./lib/render.js": "Fhpq",
-    "./lib/template-factory.js": "gbKZ",
-    "./lib/template-instance.js": "bn5t",
-    "./lib/template.js": "Av0K"
+    "./lib/default-template-processor.js": "../node_modules/lit-html/lib/default-template-processor.js",
+    "./lib/template-result.js": "../node_modules/lit-html/lib/template-result.js",
+    "./lib/directive.js": "../node_modules/lit-html/lib/directive.js",
+    "./lib/dom.js": "../node_modules/lit-html/lib/dom.js",
+    "./lib/part.js": "../node_modules/lit-html/lib/part.js",
+    "./lib/parts.js": "../node_modules/lit-html/lib/parts.js",
+    "./lib/render.js": "../node_modules/lit-html/lib/render.js",
+    "./lib/template-factory.js": "../node_modules/lit-html/lib/template-factory.js",
+    "./lib/template-instance.js": "../node_modules/lit-html/lib/template-instance.js",
+    "./lib/template.js": "../node_modules/lit-html/lib/template.js"
   }],
-  "NXoq": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/modify-template.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.removeNodesFromTemplate = n, exports.insertNodeIntoTemplate = l;
+      value: true
+    });
+    exports.removeNodesFromTemplate = removeNodesFromTemplate;
+    exports.insertNodeIntoTemplate = insertNodeIntoTemplate;
 
-    var e = require("./template.js");
+    var _template = require("./template.js");
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
 
-    const t = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT;
 
-    function n(e, n) {
+    const walkerNodeFilter = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT;
+    /**
+     * Removes the list of nodes from a Template safely. In addition to removing
+     * nodes from the Template, the Template part indices are updated to match
+     * the mutated Template DOM.
+     *
+     * As the template is walked the removal state is tracked and
+     * part indices are adjusted as needed.
+     *
+     * div
+     *   div#1 (remove) <-- start removing (removing node is div#1)
+     *     div
+     *       div#2 (remove)  <-- continue removing (removing node is still div#1)
+     *         div
+     * div <-- stop removing since previous sibling is the removing node (div#1,
+     * removed 4 nodes)
+     */
+
+    function removeNodesFromTemplate(template, nodesToRemove) {
       const {
         element: {
-          content: r
+          content
         },
-        parts: l
-      } = e,
-            d = document.createTreeWalker(r, t, null, !1);
-      let u = o(l),
-          i = l[u],
-          c = -1,
-          s = 0;
-      const a = [];
-      let N = null;
+        parts
+      } = template;
+      const walker = document.createTreeWalker(content, walkerNodeFilter, null, false);
+      let partIndex = nextActiveIndexInTemplateParts(parts);
+      let part = parts[partIndex];
+      let nodeIndex = -1;
+      let removeCount = 0;
+      const nodesToRemoveInTemplate = [];
+      let currentRemovingNode = null;
 
-      for (; d.nextNode();) {
-        c++;
-        const e = d.currentNode;
+      while (walker.nextNode()) {
+        nodeIndex++;
+        const node = walker.currentNode; // End removal if stepped past the removing node
 
-        for (e.previousSibling === N && (N = null), n.has(e) && (a.push(e), null === N && (N = e)), null !== N && s++; void 0 !== i && i.index === c;) i.index = null !== N ? -1 : i.index - s, i = l[u = o(l, u)];
+        if (node.previousSibling === currentRemovingNode) {
+          currentRemovingNode = null;
+        } // A node to remove was found in the template
+
+
+        if (nodesToRemove.has(node)) {
+          nodesToRemoveInTemplate.push(node); // Track node we're removing
+
+          if (currentRemovingNode === null) {
+            currentRemovingNode = node;
+          }
+        } // When removing, increment count by which to adjust subsequent part indices
+
+
+        if (currentRemovingNode !== null) {
+          removeCount++;
+        }
+
+        while (part !== undefined && part.index === nodeIndex) {
+          // If part is in a removed node deactivate it by setting index to -1 or
+          // adjust the index as needed.
+          part.index = currentRemovingNode !== null ? -1 : part.index - removeCount; // go to the next active part.
+
+          partIndex = nextActiveIndexInTemplateParts(parts, partIndex);
+          part = parts[partIndex];
+        }
       }
 
-      a.forEach(e => e.parentNode.removeChild(e));
+      nodesToRemoveInTemplate.forEach(n => n.parentNode.removeChild(n));
     }
 
-    const r = e => {
-      let n = e.nodeType === Node.DOCUMENT_FRAGMENT_NODE ? 0 : 1;
-      const r = document.createTreeWalker(e, t, null, !1);
+    const countNodes = node => {
+      let count = node.nodeType === Node.DOCUMENT_FRAGMENT_NODE ? 0 : 1;
+      const walker = document.createTreeWalker(node, walkerNodeFilter, null, false);
 
-      for (; r.nextNode();) n++;
+      while (walker.nextNode()) {
+        count++;
+      }
 
-      return n;
-    },
-          o = (t, n = -1) => {
-      for (let r = n + 1; r < t.length; r++) {
-        const n = t[r];
-        if ((0, e.isTemplatePartActive)(n)) return r;
+      return count;
+    };
+
+    const nextActiveIndexInTemplateParts = (parts, startIndex = -1) => {
+      for (let i = startIndex + 1; i < parts.length; i++) {
+        const part = parts[i];
+
+        if ((0, _template.isTemplatePartActive)(part)) {
+          return i;
+        }
       }
 
       return -1;
     };
+    /**
+     * Inserts the given node into the Template, optionally before the given
+     * refNode. In addition to inserting the node into the Template, the Template
+     * part indices are updated to match the mutated Template DOM.
+     */
 
-    function l(e, n, l = null) {
+
+    function insertNodeIntoTemplate(template, node, refNode = null) {
       const {
         element: {
-          content: d
+          content
         },
-        parts: u
-      } = e;
-      if (null == l) return void d.appendChild(n);
-      const i = document.createTreeWalker(d, t, null, !1);
-      let c = o(u),
-          s = 0,
-          a = -1;
+        parts
+      } = template; // If there's no refNode, then put node at end of template.
+      // No part indices need to be shifted in this case.
 
-      for (; i.nextNode();) {
-        for (a++, i.currentNode === l && (s = r(n), l.parentNode.insertBefore(n, l)); -1 !== c && u[c].index === a;) {
-          if (s > 0) {
-            for (; -1 !== c;) u[c].index += s, c = o(u, c);
+      if (refNode === null || refNode === undefined) {
+        content.appendChild(node);
+        return;
+      }
+
+      const walker = document.createTreeWalker(content, walkerNodeFilter, null, false);
+      let partIndex = nextActiveIndexInTemplateParts(parts);
+      let insertCount = 0;
+      let walkerIndex = -1;
+
+      while (walker.nextNode()) {
+        walkerIndex++;
+        const walkerNode = walker.currentNode;
+
+        if (walkerNode === refNode) {
+          insertCount = countNodes(node);
+          refNode.parentNode.insertBefore(node, refNode);
+        }
+
+        while (partIndex !== -1 && parts[partIndex].index === walkerIndex) {
+          // If we've inserted the node, simply adjust all subsequent parts
+          if (insertCount > 0) {
+            while (partIndex !== -1) {
+              parts[partIndex].index += insertCount;
+              partIndex = nextActiveIndexInTemplateParts(parts, partIndex);
+            }
 
             return;
           }
 
-          c = o(u, c);
+          partIndex = nextActiveIndexInTemplateParts(parts, partIndex);
         }
       }
     }
   }, {
-    "./template.js": "Av0K"
+    "./template.js": "../node_modules/lit-html/lib/template.js"
   }],
-  "eBH8": [function (require, module, exports) {
+  "../node_modules/lit-html/lib/shady-render.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), Object.defineProperty(exports, "html", {
-      enumerable: !0,
+      value: true
+    });
+    Object.defineProperty(exports, "html", {
+      enumerable: true,
       get: function () {
-        return l.html;
+        return _litHtml.html;
       }
-    }), Object.defineProperty(exports, "svg", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "svg", {
+      enumerable: true,
       get: function () {
-        return l.svg;
+        return _litHtml.svg;
       }
-    }), Object.defineProperty(exports, "TemplateResult", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "TemplateResult", {
+      enumerable: true,
       get: function () {
-        return l.TemplateResult;
+        return _litHtml.TemplateResult;
       }
-    }), exports.render = void 0;
+    });
+    exports.render = void 0;
 
-    var e = require("./dom.js"),
-        t = require("./modify-template.js"),
-        r = require("./render.js"),
-        n = require("./template-factory.js"),
-        o = require("./template-instance.js"),
-        s = require("./template-result.js"),
-        a = require("./template.js"),
-        l = require("../lit-html.js");
+    var _dom = require("./dom.js");
 
-    const i = (e, t) => `${e}--${t}`;
+    var _modifyTemplate = require("./modify-template.js");
 
-    let d = !0;
-    void 0 === window.ShadyCSS ? d = !1 : void 0 === window.ShadyCSS.prepareTemplateDom && (console.warn("Incompatible ShadyCSS version detected.Please update to at least @webcomponents/webcomponentsjs@2.0.2 and@webcomponents/shadycss@1.3.1."), d = !1);
+    var _render = require("./render.js");
 
-    const m = e => t => {
-      const r = i(t.type, e);
-      let o = n.templateCaches.get(r);
-      void 0 === o && (o = {
-        stringsArray: new WeakMap(),
-        keyString: new Map()
-      }, n.templateCaches.set(r, o));
-      let s = o.stringsArray.get(t.strings);
-      if (void 0 !== s) return s;
-      const l = t.strings.join(a.marker);
+    var _templateFactory = require("./template-factory.js");
 
-      if (void 0 === (s = o.keyString.get(l))) {
-        const r = t.getTemplateElement();
-        d && window.ShadyCSS.prepareTemplateDom(r, e), s = new a.Template(t, r), o.keyString.set(l, s);
-      }
+    var _templateInstance = require("./template-instance.js");
 
-      return o.stringsArray.set(t.strings, s), s;
-    },
-          c = ["html", "svg"],
-          p = e => {
-      c.forEach(r => {
-        const o = n.templateCaches.get(i(r, e));
-        void 0 !== o && o.keyString.forEach(e => {
-          const {
-            element: {
-              content: r
-            }
-          } = e,
-                n = new Set();
-          Array.from(r.querySelectorAll("style")).forEach(e => {
-            n.add(e);
-          }), (0, t.removeNodesFromTemplate)(e, n);
-        });
-      });
-    },
-          u = new Set(),
-          S = (e, r, n) => {
-      u.add(n);
-      const o = e.querySelectorAll("style");
-      if (0 === o.length) return;
-      const s = document.createElement("style");
+    var _templateResult = require("./template-result.js");
 
-      for (let t = 0; t < o.length; t++) {
-        const e = o[t];
-        e.parentNode.removeChild(e), s.textContent += e.textContent;
-      }
+    var _template = require("./template.js");
 
-      if (p(n), (0, t.insertNodeIntoTemplate)(r, s, r.element.content.firstChild), window.ShadyCSS.prepareTemplateStyles(r.element, n), window.ShadyCSS.nativeShadow) {
-        const t = r.element.content.querySelector("style");
-        e.insertBefore(t.cloneNode(!0), e.firstChild);
-      } else {
-        r.element.content.insertBefore(s, r.element.content.firstChild);
-        const e = new Set();
-        e.add(s), (0, t.removeNodesFromTemplate)(r, e);
-      }
-    },
-          y = (t, n, a) => {
-      const l = a.scopeName,
-            i = r.parts.has(n),
-            c = n instanceof ShadowRoot && d && t instanceof s.TemplateResult,
-            p = c && !u.has(l),
-            y = p ? document.createDocumentFragment() : n;
+    var _litHtml = require("../lit-html.js");
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    // Get a key to lookup in `templateCaches`.
 
-      if ((0, r.render)(t, y, Object.assign({
-        templateFactory: m(l)
-      }, a)), p) {
-        const t = r.parts.get(y);
-        r.parts.delete(y), t.value instanceof o.TemplateInstance && S(y, t.value.template, l), (0, e.removeNodes)(n, n.firstChild), n.appendChild(y), r.parts.set(n, t);
+
+    const getTemplateCacheKey = (type, scopeName) => `${type}--${scopeName}`;
+
+    let compatibleShadyCSSVersion = true;
+
+    if (typeof window.ShadyCSS === 'undefined') {
+      compatibleShadyCSSVersion = false;
+    } else if (typeof window.ShadyCSS.prepareTemplateDom === 'undefined') {
+      console.warn(`Incompatible ShadyCSS version detected.` + `Please update to at least @webcomponents/webcomponentsjs@2.0.2 and` + `@webcomponents/shadycss@1.3.1.`);
+      compatibleShadyCSSVersion = false;
+    }
+    /**
+     * Template factory which scopes template DOM using ShadyCSS.
+     * @param scopeName {string}
+     */
+
+
+    const shadyTemplateFactory = scopeName => result => {
+      const cacheKey = getTemplateCacheKey(result.type, scopeName);
+
+      let templateCache = _templateFactory.templateCaches.get(cacheKey);
+
+      if (templateCache === undefined) {
+        templateCache = {
+          stringsArray: new WeakMap(),
+          keyString: new Map()
+        };
+
+        _templateFactory.templateCaches.set(cacheKey, templateCache);
       }
 
-      !i && c && window.ShadyCSS.styleElement(n.host);
+      let template = templateCache.stringsArray.get(result.strings);
+
+      if (template !== undefined) {
+        return template;
+      }
+
+      const key = result.strings.join(_template.marker);
+      template = templateCache.keyString.get(key);
+
+      if (template === undefined) {
+        const element = result.getTemplateElement();
+
+        if (compatibleShadyCSSVersion) {
+          window.ShadyCSS.prepareTemplateDom(element, scopeName);
+        }
+
+        template = new _template.Template(result, element);
+        templateCache.keyString.set(key, template);
+      }
+
+      templateCache.stringsArray.set(result.strings, template);
+      return template;
     };
 
-    exports.render = y;
+    const TEMPLATE_TYPES = ['html', 'svg'];
+    /**
+     * Removes all style elements from Templates for the given scopeName.
+     */
+
+    const removeStylesFromLitTemplates = scopeName => {
+      TEMPLATE_TYPES.forEach(type => {
+        const templates = _templateFactory.templateCaches.get(getTemplateCacheKey(type, scopeName));
+
+        if (templates !== undefined) {
+          templates.keyString.forEach(template => {
+            const {
+              element: {
+                content
+              }
+            } = template; // IE 11 doesn't support the iterable param Set constructor
+
+            const styles = new Set();
+            Array.from(content.querySelectorAll('style')).forEach(s => {
+              styles.add(s);
+            });
+            (0, _modifyTemplate.removeNodesFromTemplate)(template, styles);
+          });
+        }
+      });
+    };
+
+    const shadyRenderSet = new Set();
+    /**
+     * For the given scope name, ensures that ShadyCSS style scoping is performed.
+     * This is done just once per scope name so the fragment and template cannot
+     * be modified.
+     * (1) extracts styles from the rendered fragment and hands them to ShadyCSS
+     * to be scoped and appended to the document
+     * (2) removes style elements from all lit-html Templates for this scope name.
+     *
+     * Note, <style> elements can only be placed into templates for the
+     * initial rendering of the scope. If <style> elements are included in templates
+     * dynamically rendered to the scope (after the first scope render), they will
+     * not be scoped and the <style> will be left in the template and rendered
+     * output.
+     */
+
+    const prepareTemplateStyles = (renderedDOM, template, scopeName) => {
+      shadyRenderSet.add(scopeName); // Move styles out of rendered DOM and store.
+
+      const styles = renderedDOM.querySelectorAll('style'); // If there are no styles, there's no work to do.
+
+      if (styles.length === 0) {
+        return;
+      }
+
+      const condensedStyle = document.createElement('style'); // Collect styles into a single style. This helps us make sure ShadyCSS
+      // manipulations will not prevent us from being able to fix up template
+      // part indices.
+      // NOTE: collecting styles is inefficient for browsers but ShadyCSS
+      // currently does this anyway. When it does not, this should be changed.
+
+      for (let i = 0; i < styles.length; i++) {
+        const style = styles[i];
+        style.parentNode.removeChild(style);
+        condensedStyle.textContent += style.textContent;
+      } // Remove styles from nested templates in this scope.
+
+
+      removeStylesFromLitTemplates(scopeName); // And then put the condensed style into the "root" template passed in as
+      // `template`.
+
+      (0, _modifyTemplate.insertNodeIntoTemplate)(template, condensedStyle, template.element.content.firstChild); // Note, it's important that ShadyCSS gets the template that `lit-html`
+      // will actually render so that it can update the style inside when
+      // needed (e.g. @apply native Shadow DOM case).
+
+      window.ShadyCSS.prepareTemplateStyles(template.element, scopeName);
+
+      if (window.ShadyCSS.nativeShadow) {
+        // When in native Shadow DOM, re-add styling to rendered content using
+        // the style ShadyCSS produced.
+        const style = template.element.content.querySelector('style');
+        renderedDOM.insertBefore(style.cloneNode(true), renderedDOM.firstChild);
+      } else {
+        // When not in native Shadow DOM, at this point ShadyCSS will have
+        // removed the style from the lit template and parts will be broken as a
+        // result. To fix this, we put back the style node ShadyCSS removed
+        // and then tell lit to remove that node from the template.
+        // NOTE, ShadyCSS creates its own style so we can safely add/remove
+        // `condensedStyle` here.
+        template.element.content.insertBefore(condensedStyle, template.element.content.firstChild);
+        const removes = new Set();
+        removes.add(condensedStyle);
+        (0, _modifyTemplate.removeNodesFromTemplate)(template, removes);
+      }
+    };
+    /**
+     * Extension to the standard `render` method which supports rendering
+     * to ShadowRoots when the ShadyDOM (https://github.com/webcomponents/shadydom)
+     * and ShadyCSS (https://github.com/webcomponents/shadycss) polyfills are used
+     * or when the webcomponentsjs
+     * (https://github.com/webcomponents/webcomponentsjs) polyfill is used.
+     *
+     * Adds a `scopeName` option which is used to scope element DOM and stylesheets
+     * when native ShadowDOM is unavailable. The `scopeName` will be added to
+     * the class attribute of all rendered DOM. In addition, any style elements will
+     * be automatically re-written with this `scopeName` selector and moved out
+     * of the rendered DOM and into the document <head>.
+     *
+     * It is common to use this render method in conjunction with a custom element
+     * which renders a shadowRoot. When this is done, typically the element's
+     * `localName` should be used as the `scopeName`.
+     *
+     * In addition to DOM scoping, ShadyCSS also supports a basic shim for css
+     * custom properties (needed only on older browsers like IE11) and a shim for
+     * a deprecated feature called `@apply` that supports applying a set of css
+     * custom properties to a given location.
+     *
+     * Usage considerations:
+     *
+     * * Part values in <style> elements are only applied the first time a given
+     * `scopeName` renders. Subsequent changes to parts in style elements will have
+     * no effect. Because of this, parts in style elements should only be used for
+     * values that will never change, for example parts that set scope-wide theme
+     * values or parts which render shared style elements.
+     *
+     * * Note, due to a limitation of the ShadyDOM polyfill, rendering in a
+     * custom element's `constructor` is not supported. Instead rendering should
+     * either done asynchronously, for example at microtask timing (e.g.
+     * Promise.resolve()), or be deferred until the element's `connectedCallback`
+     * first runs.
+     *
+     * Usage considerations when using shimmed custom properties or `@apply`:
+     *
+     * * Whenever any dynamic changes are made which affect
+     * css custom properties, `ShadyCSS.styleElement(element)` must be called
+     * to update the element. There are two cases when this is needed:
+     * (1) the element is connected to a new parent, (2) a class is added to the
+     * element that causes it to match different custom properties.
+     * To address the first case when rendering a custom element, `styleElement`
+     * should be called in the element's `connectedCallback`.
+     *
+     * * Shimmed custom properties may only be defined either for an entire
+     * shadowRoot (e.g. via `:host`) or via a rule that directly matches an element
+     * with a shadowRoot. In other words, instead of flowing from parent to child as
+     * do native css custom properties, shimmed custom properties flow only from
+     * shadowRoots to nested shadowRoots.
+     *
+     * * When using `@apply` mixing css shorthand property names with
+     * non-shorthand names (for example `border` and `border-width`) is not
+     * supported.
+     */
+
+
+    const render = (result, container, options) => {
+      const scopeName = options.scopeName;
+
+      const hasRendered = _render.parts.has(container);
+
+      const needsScoping = container instanceof ShadowRoot && compatibleShadyCSSVersion && result instanceof _templateResult.TemplateResult; // Handle first render to a scope specially...
+
+      const firstScopeRender = needsScoping && !shadyRenderSet.has(scopeName); // On first scope render, render into a fragment; this cannot be a single
+      // fragment that is reused since nested renders can occur synchronously.
+
+      const renderContainer = firstScopeRender ? document.createDocumentFragment() : container;
+      (0, _render.render)(result, renderContainer, Object.assign({
+        templateFactory: shadyTemplateFactory(scopeName)
+      }, options)); // When performing first scope render,
+      // (1) We've rendered into a fragment so that there's a chance to
+      // `prepareTemplateStyles` before sub-elements hit the DOM
+      // (which might cause them to render based on a common pattern of
+      // rendering in a custom element's `connectedCallback`);
+      // (2) Scope the template with ShadyCSS one time only for this scope.
+      // (3) Render the fragment into the container and make sure the
+      // container knows its `part` is the one we just rendered. This ensures
+      // DOM will be re-used on subsequent renders.
+
+      if (firstScopeRender) {
+        const part = _render.parts.get(renderContainer);
+
+        _render.parts.delete(renderContainer);
+
+        if (part.value instanceof _templateInstance.TemplateInstance) {
+          prepareTemplateStyles(renderContainer, part.value.template, scopeName);
+        }
+
+        (0, _dom.removeNodes)(container, container.firstChild);
+        container.appendChild(renderContainer);
+
+        _render.parts.set(container, part);
+      } // After elements have hit the DOM, update styling if this is the
+      // initial render to this container.
+      // This is needed whenever dynamic changes are made so it would be
+      // safest to do every render; however, this would regress performance
+      // so we leave it up to the user to call `ShadyCSSS.styleElement`
+      // for dynamic changes.
+
+
+      if (!hasRendered && needsScoping) {
+        window.ShadyCSS.styleElement(container.host);
+      }
+    };
+
+    exports.render = render;
   }, {
-    "./dom.js": "2ytx",
-    "./modify-template.js": "NXoq",
-    "./render.js": "Fhpq",
-    "./template-factory.js": "gbKZ",
-    "./template-instance.js": "bn5t",
-    "./template-result.js": "cVNN",
-    "./template.js": "Av0K",
-    "../lit-html.js": "SP/d"
+    "./dom.js": "../node_modules/lit-html/lib/dom.js",
+    "./modify-template.js": "../node_modules/lit-html/lib/modify-template.js",
+    "./render.js": "../node_modules/lit-html/lib/render.js",
+    "./template-factory.js": "../node_modules/lit-html/lib/template-factory.js",
+    "./template-instance.js": "../node_modules/lit-html/lib/template-instance.js",
+    "./template-result.js": "../node_modules/lit-html/lib/template-result.js",
+    "./template.js": "../node_modules/lit-html/lib/template.js",
+    "../lit-html.js": "../node_modules/lit-html/lit-html.js"
   }],
-  "jBO4": [function (require, module, exports) {
+  "../node_modules/@polymer/lit-element/lib/updating-element.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.UpdatingElement = exports.notEqual = void 0;
+      value: true
+    });
+    exports.UpdatingElement = exports.notEqual = void 0;
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    // serializer/deserializers for boolean attribute
 
-    const t = t => null !== t,
-          e = t => t ? "" : null,
-          i = (t, e) => e !== t && (e == e || t == t);
+    const fromBooleanAttribute = value => value !== null;
 
-    exports.notEqual = i;
-    const s = {
-      attribute: !0,
+    const toBooleanAttribute = value => value ? '' : null;
+    /**
+     * Change function that returns true if `value` is different from `oldValue`.
+     * This method is used as the default for a property's `hasChanged` function.
+     */
+
+
+    const notEqual = (value, old) => {
+      // This ensures (old==NaN, value==NaN) always returns false
+      return old !== value && (old === old || value === value);
+    };
+
+    exports.notEqual = notEqual;
+    const defaultPropertyDeclaration = {
+      attribute: true,
       type: String,
-      reflect: !1,
-      hasChanged: i
-    },
-          r = new Promise(t => t(!0)),
-          o = 1,
-          a = 4,
-          p = 8;
-    let n = class n extends HTMLElement {
+      reflect: false,
+      hasChanged: notEqual
+    };
+    const microtaskPromise = new Promise(resolve => resolve(true));
+    const STATE_HAS_UPDATED = 1;
+    const STATE_UPDATE_REQUESTED = 1 << 2;
+    const STATE_IS_REFLECTING = 1 << 3;
+    /**
+     * Base element class which manages element properties and attributes. When
+     * properties change, the `update` method is asynchronously called. This method
+     * should be supplied by subclassers to render updates as desired.
+     */
+
+    let UpdatingElement = class UpdatingElement extends HTMLElement {
       constructor() {
-        super(), this._updateState = 0, this._instanceProperties = void 0, this._updatePromise = r, this._changedProperties = new Map(), this._reflectingProperties = void 0, this.initialize();
+        super();
+        this._updateState = 0;
+        this._instanceProperties = undefined;
+        this._updatePromise = microtaskPromise;
+        /**
+         * Map with keys for any properties that have changed since the last
+         * update cycle with previous values.
+         */
+
+        this._changedProperties = new Map();
+        /**
+         * Map with keys of properties that should be reflected when updated.
+         */
+
+        this._reflectingProperties = undefined;
+        this.initialize();
       }
+      /**
+       * Returns a list of attributes corresponding to the registered properties.
+       */
+
 
       static get observedAttributes() {
+        // note: piggy backing on this to ensure we're _finalized.
         this._finalize();
 
-        const t = [];
+        const attributes = [];
 
-        for (const [e, i] of this._classProperties) {
-          const s = this._attributeNameForProperty(e, i);
+        for (const [p, v] of this._classProperties) {
+          const attr = this._attributeNameForProperty(p, v);
 
-          void 0 !== s && (this._attributeToPropertyMap.set(s, e), t.push(s));
+          if (attr !== undefined) {
+            this._attributeToPropertyMap.set(attr, p);
+
+            attributes.push(attr);
+          }
         }
 
-        return t;
+        return attributes;
       }
+      /**
+       * Creates a property accessor on the element prototype if one does not exist.
+       * The property setter calls the property's `hasChanged` property option
+       * or uses a strict identity check to determine whether or not to request
+       * an update.
+       */
 
-      static createProperty(t, e = s) {
-        if (!this.hasOwnProperty("_classProperties")) {
-          this._classProperties = new Map();
 
-          const t = Object.getPrototypeOf(this)._classProperties;
+      static createProperty(name, options = defaultPropertyDeclaration) {
+        // ensure private storage for property declarations.
+        if (!this.hasOwnProperty('_classProperties')) {
+          this._classProperties = new Map(); // NOTE: Workaround IE11 not supporting Map constructor argument.
 
-          void 0 !== t && t.forEach((t, e) => this._classProperties.set(e, t));
+          const superProperties = Object.getPrototypeOf(this)._classProperties;
+
+          if (superProperties !== undefined) {
+            superProperties.forEach((v, k) => this._classProperties.set(k, v));
+          }
         }
 
-        if (this._classProperties.set(t, e), this.prototype.hasOwnProperty(t)) return;
-        const i = "symbol" == typeof t ? Symbol() : `__${t}`;
-        Object.defineProperty(this.prototype, t, {
+        this._classProperties.set(name, options); // Allow user defined accessors by not replacing an existing own-property
+        // accessor.
+
+
+        if (this.prototype.hasOwnProperty(name)) {
+          return;
+        }
+
+        const key = typeof name === 'symbol' ? Symbol() : `__${name}`;
+        Object.defineProperty(this.prototype, name, {
           get() {
-            return this[i];
+            return this[key];
           },
 
-          set(s) {
-            const r = this[t];
-            this[i] = s, this._requestPropertyUpdate(t, r, e);
+          set(value) {
+            const oldValue = this[name];
+            this[key] = value;
+
+            this._requestPropertyUpdate(name, oldValue, options);
           },
 
-          configurable: !0,
-          enumerable: !0
+          configurable: true,
+          enumerable: true
         });
       }
+      /**
+       * Creates property accessors for registered properties and ensures
+       * any superclasses are also finalized.
+       */
+
 
       static _finalize() {
-        if (this.hasOwnProperty("_finalized") && this._finalized) return;
-        const t = Object.getPrototypeOf(this);
-        "function" == typeof t._finalize && t._finalize(), this._finalized = !0, this._attributeToPropertyMap = new Map();
-        const e = this.properties,
-              i = [...Object.getOwnPropertyNames(e), ...("function" == typeof Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(e) : [])];
+        if (this.hasOwnProperty('_finalized') && this._finalized) {
+          return;
+        } // finalize any superclasses
 
-        for (const s of i) this.createProperty(s, e[s]);
-      }
 
-      static _attributeNameForProperty(t, e) {
-        const i = void 0 !== e && e.attribute;
-        return !1 === i ? void 0 : "string" == typeof i ? i : "string" == typeof t ? t.toLowerCase() : void 0;
-      }
+        const superCtor = Object.getPrototypeOf(this);
 
-      static _valueHasChanged(t, e, s = i) {
-        return s(t, e);
-      }
+        if (typeof superCtor._finalize === 'function') {
+          superCtor._finalize();
+        }
 
-      static _propertyValueFromAttribute(e, i) {
-        const s = i && i.type;
-        if (void 0 === s) return e;
-        const r = s === Boolean ? t : "function" == typeof s ? s : s.fromAttribute;
-        return r ? r(e) : e;
-      }
+        this._finalized = true; // initialize Map populated in observedAttributes
 
-      static _propertyValueToAttribute(t, i) {
-        if (void 0 === i || void 0 === i.reflect) return;
-        return (i.type === Boolean ? e : i.type && i.type.toAttribute || String)(t);
-      }
+        this._attributeToPropertyMap = new Map(); // make any properties
 
-      initialize() {
-        this.renderRoot = this.createRenderRoot(), this._saveInstanceProperties();
-      }
+        const props = this.properties; // support symbols in properties (IE11 does not support this)
 
-      _saveInstanceProperties() {
-        for (const [t] of this.constructor._classProperties) if (this.hasOwnProperty(t)) {
-          const e = this[t];
-          delete this[t], this._instanceProperties || (this._instanceProperties = new Map()), this._instanceProperties.set(t, e);
+        const propKeys = [...Object.getOwnPropertyNames(props), ...(typeof Object.getOwnPropertySymbols === 'function' ? Object.getOwnPropertySymbols(props) : [])];
+
+        for (const p of propKeys) {
+          // note, use of `any` is due to TypeSript lack of support for symbol in
+          // index types
+          this.createProperty(p, props[p]);
         }
       }
+      /**
+       * Returns the property name for the given attribute `name`.
+       */
+
+
+      static _attributeNameForProperty(name, options) {
+        const attribute = options !== undefined && options.attribute;
+        return attribute === false ? undefined : typeof attribute === 'string' ? attribute : typeof name === 'string' ? name.toLowerCase() : undefined;
+      }
+      /**
+       * Returns true if a property should request an update.
+       * Called when a property value is set and uses the `hasChanged`
+       * option for the property if present or a strict identity check.
+       */
+
+
+      static _valueHasChanged(value, old, hasChanged = notEqual) {
+        return hasChanged(value, old);
+      }
+      /**
+       * Returns the property value for the given attribute value.
+       * Called via the `attributeChangedCallback` and uses the property's `type`
+       * or `type.fromAttribute` property option.
+       */
+
+
+      static _propertyValueFromAttribute(value, options) {
+        const type = options && options.type;
+
+        if (type === undefined) {
+          return value;
+        } // Note: special case `Boolean` so users can use it as a `type`.
+
+
+        const fromAttribute = type === Boolean ? fromBooleanAttribute : typeof type === 'function' ? type : type.fromAttribute;
+        return fromAttribute ? fromAttribute(value) : value;
+      }
+      /**
+       * Returns the attribute value for the given property value. If this
+       * returns undefined, the property will *not* be reflected to an attribute.
+       * If this returns null, the attribute will be removed, otherwise the
+       * attribute will be set to the value.
+       * This uses the property's `reflect` and `type.toAttribute` property options.
+       */
+
+
+      static _propertyValueToAttribute(value, options) {
+        if (options === undefined || options.reflect === undefined) {
+          return;
+        } // Note: special case `Boolean` so users can use it as a `type`.
+
+
+        const toAttribute = options.type === Boolean ? toBooleanAttribute : options.type && options.type.toAttribute || String;
+        return toAttribute(value);
+      }
+      /**
+       * Performs element initialization. By default this calls `createRenderRoot`
+       * to create the element `renderRoot` node and captures any pre-set values for
+       * registered properties.
+       */
+
+
+      initialize() {
+        this.renderRoot = this.createRenderRoot();
+
+        this._saveInstanceProperties();
+      }
+      /**
+       * Fixes any properties set on the instance before upgrade time.
+       * Otherwise these would shadow the accessor and break these properties.
+       * The properties are stored in a Map which is played back after the
+       * constructor runs. Note, on very old versions of Safari (<=9) or Chrome
+       * (<=41), properties created for native platform properties like (`id` or
+       * `name`) may not have default values set in the element constructor. On
+       * these browsers native properties appear on instances and therefore their
+       * default value will overwrite any element default (e.g. if the element sets
+       * this.id = 'id' in the constructor, the 'id' will become '' since this is
+       * the native platform default).
+       */
+
+
+      _saveInstanceProperties() {
+        for (const [p] of this.constructor._classProperties) {
+          if (this.hasOwnProperty(p)) {
+            const value = this[p];
+            delete this[p];
+
+            if (!this._instanceProperties) {
+              this._instanceProperties = new Map();
+            }
+
+            this._instanceProperties.set(p, value);
+          }
+        }
+      }
+      /**
+       * Applies previously saved instance properties.
+       */
+
 
       _applyInstanceProperties() {
-        for (const [t, e] of this._instanceProperties) this[t] = e;
+        for (const [p, v] of this._instanceProperties) {
+          this[p] = v;
+        }
 
-        this._instanceProperties = void 0;
+        this._instanceProperties = undefined;
       }
+      /**
+       * Returns the node into which the element should render and by default
+       * creates and returns an open shadowRoot. Implement to customize where the
+       * element's DOM is rendered. For example, to render into the element's
+       * childNodes, return `this`.
+       * @returns {Element|DocumentFragment} Returns a node into which to render.
+       */
+
 
       createRenderRoot() {
         return this.attachShadow({
-          mode: "open"
+          mode: 'open'
         });
       }
+      /**
+       * Uses ShadyCSS to keep element DOM updated.
+       */
+
 
       connectedCallback() {
-        this._updateState & o ? void 0 !== window.ShadyCSS && window.ShadyCSS.styleElement(this) : this.requestUpdate();
+        if (this._updateState & STATE_HAS_UPDATED) {
+          if (window.ShadyCSS !== undefined) {
+            window.ShadyCSS.styleElement(this);
+          }
+        } else {
+          this.requestUpdate();
+        }
       }
+      /**
+       * Allows for `super.disconnectedCallback()` in extensions while
+       * reserving the possibility of making non-breaking feature additions
+       * when disconnecting at some point in the future.
+       */
+
 
       disconnectedCallback() {}
+      /**
+       * Synchronizes property values when attributes change.
+       */
 
-      attributeChangedCallback(t, e, i) {
-        e !== i && this._attributeToProperty(t, i);
-      }
 
-      _propertyToAttribute(t, e, i = s) {
-        const r = this.constructor,
-              o = r._propertyValueToAttribute(e, i);
-
-        if (void 0 !== o) {
-          const e = r._attributeNameForProperty(t, i);
-
-          void 0 !== e && (this._updateState = this._updateState | p, null === o ? this.removeAttribute(e) : this.setAttribute(e, o), this._updateState = this._updateState & ~p);
+      attributeChangedCallback(name, old, value) {
+        if (old !== value) {
+          this._attributeToProperty(name, value);
         }
       }
 
-      _attributeToProperty(t, e) {
-        if (!(this._updateState & p)) {
-          const i = this.constructor,
-                s = i._attributeToPropertyMap.get(t);
+      _propertyToAttribute(name, value, options = defaultPropertyDeclaration) {
+        const ctor = this.constructor;
 
-          if (void 0 !== s) {
-            const t = i._classProperties.get(s);
+        const attrValue = ctor._propertyValueToAttribute(value, options);
 
-            this[s] = i._propertyValueFromAttribute(e, t);
+        if (attrValue !== undefined) {
+          const attr = ctor._attributeNameForProperty(name, options);
+
+          if (attr !== undefined) {
+            // Track if the property is being reflected to avoid
+            // setting the property again via `attributeChangedCallback`. Note:
+            // 1. this takes advantage of the fact that the callback is synchronous.
+            // 2. will behave incorrectly if multiple attributes are in the reaction
+            // stack at time of calling. However, since we process attributes
+            // in `update` this should not be possible (or an extreme corner case
+            // that we'd like to discover).
+            // mark state reflecting
+            this._updateState = this._updateState | STATE_IS_REFLECTING;
+
+            if (attrValue === null) {
+              this.removeAttribute(attr);
+            } else {
+              this.setAttribute(attr, attrValue);
+            } // mark state not reflecting
+
+
+            this._updateState = this._updateState & ~STATE_IS_REFLECTING;
           }
         }
       }
 
-      requestUpdate(t, e) {
-        if (void 0 !== t) {
-          const i = this.constructor._classProperties.get(t) || s;
-          return this._requestPropertyUpdate(t, e, i);
+      _attributeToProperty(name, value) {
+        // Use tracking info to avoid deserializing attribute value if it was
+        // just set from a property setter.
+        if (!(this._updateState & STATE_IS_REFLECTING)) {
+          const ctor = this.constructor;
+
+          const propName = ctor._attributeToPropertyMap.get(name);
+
+          if (propName !== undefined) {
+            const options = ctor._classProperties.get(propName);
+
+            this[propName] = ctor._propertyValueFromAttribute(value, options);
+          }
+        }
+      }
+      /**
+       * Requests an update which is processed asynchronously. This should
+       * be called when an element should update based on some state not triggered
+       * by setting a property. In this case, pass no arguments. It should also be
+       * called when manually implementing a property setter. In this case, pass the
+       * property `name` and `oldValue` to ensure that any configured property
+       * options are honored. Returns the `updateComplete` Promise which is resolved
+       * when the update completes.
+       *
+       * @param name {PropertyKey} (optional) name of requesting property
+       * @param oldValue {any} (optional) old value of requesting property
+       * @returns {Promise} A Promise that is resolved when the update completes.
+       */
+
+
+      requestUpdate(name, oldValue) {
+        if (name !== undefined) {
+          const options = this.constructor._classProperties.get(name) || defaultPropertyDeclaration;
+          return this._requestPropertyUpdate(name, oldValue, options);
         }
 
         return this._invalidate();
       }
+      /**
+       * Requests an update for a specific property and records change information.
+       * @param name {PropertyKey} name of requesting property
+       * @param oldValue {any} old value of requesting property
+       * @param options {PropertyDeclaration}
+       */
 
-      _requestPropertyUpdate(t, e, i) {
-        return this.constructor._valueHasChanged(this[t], e, i.hasChanged) ? (this._changedProperties.has(t) || this._changedProperties.set(t, e), !0 === i.reflect && (void 0 === this._reflectingProperties && (this._reflectingProperties = new Map()), this._reflectingProperties.set(t, i)), this._invalidate()) : this.updateComplete;
+
+      _requestPropertyUpdate(name, oldValue, options) {
+        if (!this.constructor._valueHasChanged(this[name], oldValue, options.hasChanged)) {
+          return this.updateComplete;
+        } // track old value when changing.
+
+
+        if (!this._changedProperties.has(name)) {
+          this._changedProperties.set(name, oldValue);
+        } // add to reflecting properties set
+
+
+        if (options.reflect === true) {
+          if (this._reflectingProperties === undefined) {
+            this._reflectingProperties = new Map();
+          }
+
+          this._reflectingProperties.set(name, options);
+        }
+
+        return this._invalidate();
       }
+      /**
+       * Invalidates the element causing it to asynchronously update regardless
+       * of whether or not any property changes are pending. This method is
+       * automatically called when any registered property changes.
+       */
+
 
       async _invalidate() {
         if (!this._hasRequestedUpdate) {
-          let t;
-          this._updateState = this._updateState | a;
-          const e = this._updatePromise;
-          this._updatePromise = new Promise(e => t = e), await e, this._validate(), t(!this._hasRequestedUpdate);
+          // mark state updating...
+          this._updateState = this._updateState | STATE_UPDATE_REQUESTED;
+          let resolver;
+          const previousValidatePromise = this._updatePromise;
+          this._updatePromise = new Promise(r => resolver = r);
+          await previousValidatePromise;
+
+          this._validate();
+
+          resolver(!this._hasRequestedUpdate);
         }
 
         return this.updateComplete;
       }
 
       get _hasRequestedUpdate() {
-        return this._updateState & a;
+        return this._updateState & STATE_UPDATE_REQUESTED;
       }
+      /**
+       * Validates the element by updating it.
+       */
+
 
       _validate() {
-        if (this._instanceProperties && this._applyInstanceProperties(), this.shouldUpdate(this._changedProperties)) {
-          const t = this._changedProperties;
-          this.update(t), this._markUpdated(), this._updateState & o || (this._updateState = this._updateState | o, this.firstUpdated(t)), this.updated(t);
-        } else this._markUpdated();
+        // Mixin instance properties once, if they exist.
+        if (this._instanceProperties) {
+          this._applyInstanceProperties();
+        }
+
+        if (this.shouldUpdate(this._changedProperties)) {
+          const changedProperties = this._changedProperties;
+          this.update(changedProperties);
+
+          this._markUpdated();
+
+          if (!(this._updateState & STATE_HAS_UPDATED)) {
+            this._updateState = this._updateState | STATE_HAS_UPDATED;
+            this.firstUpdated(changedProperties);
+          }
+
+          this.updated(changedProperties);
+        } else {
+          this._markUpdated();
+        }
       }
 
       _markUpdated() {
-        this._changedProperties = new Map(), this._updateState = this._updateState & ~a;
+        this._changedProperties = new Map();
+        this._updateState = this._updateState & ~STATE_UPDATE_REQUESTED;
       }
+      /**
+       * Returns a Promise that resolves when the element has completed updating.
+       * The Promise value is a boolean that is `true` if the element completed the
+       * update without triggering another update. The Promise result is `false` if
+       * a property was set inside `updated()`. This getter can be implemented to
+       * await additional state. For example, it is sometimes useful to await a
+       * rendered element before fulfilling this Promise. To do this, first await
+       * `super.updateComplete` then any subsequent state.
+       *
+       * @returns {Promise} The Promise returns a boolean that indicates if the
+       * update resolved without triggering another update.
+       */
+
 
       get updateComplete() {
         return this._updatePromise;
       }
+      /**
+       * Controls whether or not `update` should be called when the element requests
+       * an update. By default, this method always returns `true`, but this can be
+       * customized to control when to update.
+       *
+       * * @param _changedProperties Map of changed properties with old values
+       */
 
-      shouldUpdate(t) {
-        return !0;
+
+      shouldUpdate(_changedProperties) {
+        return true;
       }
+      /**
+       * Updates the element. This method reflects property values to attributes.
+       * It can be overridden to render and keep updated DOM in the element's
+       * `renderRoot`. Setting properties inside this method will *not* trigger
+       * another update.
+       *
+       * * @param _changedProperties Map of changed properties with old values
+       */
 
-      update(t) {
-        if (void 0 !== this._reflectingProperties && this._reflectingProperties.size > 0) {
-          for (const [t, e] of this._reflectingProperties) this._propertyToAttribute(t, this[t], e);
 
-          this._reflectingProperties = void 0;
+      update(_changedProperties) {
+        if (this._reflectingProperties !== undefined && this._reflectingProperties.size > 0) {
+          for (const [k, v] of this._reflectingProperties) {
+            this._propertyToAttribute(k, this[k], v);
+          }
+
+          this._reflectingProperties = undefined;
         }
       }
+      /**
+       * Invoked whenever the element is updated. Implement to perform
+       * post-updating tasks via DOM APIs, for example, focusing an element.
+       *
+       * Setting properties inside this method will trigger the element to update
+       * again after this update cycle completes.
+       *
+       * * @param _changedProperties Map of changed properties with old values
+       */
 
-      updated(t) {}
 
-      firstUpdated(t) {}
+      updated(_changedProperties) {}
+      /**
+       * Invoked when the element is first updated. Implement to perform one time
+       * work on the element after update.
+       *
+       * Setting properties inside this method will trigger the element to update
+       * again after this update cycle completes.
+       *
+       * * @param _changedProperties Map of changed properties with old values
+       */
+
+
+      firstUpdated(_changedProperties) {}
 
     };
-    exports.UpdatingElement = n, n._attributeToPropertyMap = new Map(), n._finalized = !0, n._classProperties = new Map(), n.properties = {};
+    /**
+     * Maps attribute names to properties; for example `foobar` attribute
+     * to `fooBar` property.
+     */
+
+    exports.UpdatingElement = UpdatingElement;
+    UpdatingElement._attributeToPropertyMap = new Map();
+    /**
+     * Marks class as having finished creating properties.
+     */
+
+    UpdatingElement._finalized = true;
+    /**
+     * Memoized list of all class properties, including any superclass properties.
+     */
+
+    UpdatingElement._classProperties = new Map();
+    UpdatingElement.properties = {};
   }, {}],
-  "QuT6": [function (require, module, exports) {
+  "../node_modules/@polymer/lit-element/lib/decorators.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.eventOptions = exports.queryAll = exports.query = exports.property = exports.customElement = void 0;
+      value: true
+    });
+    exports.eventOptions = exports.queryAll = exports.query = exports.property = exports.customElement = void 0;
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
 
-    const e = e => t => (window.customElements.define(e, t), t);
+    /**
+     * Class decorator factory that defines the decorated class as a custom element.
+     *
+     * @param tagName the name of the custom element to define
+     *
+     * In TypeScript, the `tagName` passed to `customElement` should be a key of the
+     * `HTMLElementTagNameMap` interface. To add your element to the interface,
+     * declare the interface in this module:
+     *
+     *     @customElement('my-element')
+     *     export class MyElement extends LitElement {}
+     *
+     *     declare global {
+     *       interface HTMLElementTagNameMap {
+     *         'my-element': MyElement;
+     *       }
+     *     }
+     *
+     */
 
-    exports.customElement = e;
+    const customElement = tagName => clazz => {
+      window.customElements.define(tagName, clazz); // Cast as any because TS doesn't recognize the return type as being a
+      // subtype of the decorated class when clazz is typed as
+      // `Constructor<HTMLElement>` for some reason. `Constructor<HTMLElement>`
+      // is helpful to make sure the decorator is applied to elements however.
 
-    const t = e => (t, r) => {
-      t.constructor.createProperty(r, e);
+      return clazz;
     };
+    /**
+     * A property decorator which creates a LitElement property which reflects a
+     * corresponding attribute value. A `PropertyDeclaration` may optionally be
+     * supplied to configure property features.
+     */
 
-    exports.property = t;
-    const r = s((e, t) => e.querySelector(t));
-    exports.query = r;
-    const o = s((e, t) => e.querySelectorAll(t));
 
-    function s(e) {
-      return t => (r, o) => {
-        Object.defineProperty(r, o, {
+    exports.customElement = customElement;
+
+    const property = options => (proto, name) => {
+      proto.constructor.createProperty(name, options);
+    };
+    /**
+     * A property decorator that converts a class property into a getter that
+     * executes a querySelector on the element's renderRoot.
+     */
+
+
+    exports.property = property;
+
+    const query = _query((target, selector) => target.querySelector(selector));
+    /**
+     * A property decorator that converts a class property into a getter
+     * that executes a querySelectorAll on the element's renderRoot.
+     */
+
+
+    exports.query = query;
+
+    const queryAll = _query((target, selector) => target.querySelectorAll(selector));
+    /**
+     * Base-implementation of `@query` and `@queryAll` decorators.
+     *
+     * @param queryFn exectute a `selector` (ie, querySelector or querySelectorAll)
+     * against `target`.
+     */
+
+
+    exports.queryAll = queryAll;
+
+    function _query(queryFn) {
+      return selector => (proto, propName) => {
+        Object.defineProperty(proto, propName, {
           get() {
-            return e(this.renderRoot, t);
+            return queryFn(this.renderRoot, selector);
           },
 
-          enumerable: !0,
-          configurable: !0
+          enumerable: true,
+          configurable: true
         });
       };
     }
+    /**
+     * Adds event listener options to a method used as an event listener in a
+     * lit-html template.
+     *
+     * @param options An object that specifis event listener options as accepted by
+     * `EventTarget#addEventListener` and `EventTarget#removeEventListener`.
+     *
+     * Current browsers support the `capture`, `passive`, and `once` options. See:
+     * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Parameters
+     *
+     * @example
+     *
+     *     class MyElement {
+     *
+     *       clicked = false;
+     *
+     *       render() {
+     *         return html`<div @click=${this._onClick}`><button></button></div>`;
+     *       }
+     *
+     *       @eventOptions({capture: true})
+     *       _onClick(e) {
+     *         this.clicked = true;
+     *       }
+     *     }
+     */
 
-    exports.queryAll = o;
 
-    const n = e => (t, r) => {
-      Object.assign(t[r], e);
+    const eventOptions = options => (proto, name) => {
+      // This comment is here to fix a disagreement between formatter and linter
+      Object.assign(proto[name], options);
     };
 
-    exports.eventOptions = n;
+    exports.eventOptions = eventOptions;
   }, {}],
-  "Ml37": [function (require, module, exports) {
+  "../node_modules/@polymer/lit-element/lit-element.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
+      value: true
     });
-    var e = {
-      LitElement: !0,
-      html: !0,
-      svg: !0
+    var _exportNames = {
+      LitElement: true,
+      html: true,
+      svg: true
     };
     Object.defineProperty(exports, "html", {
-      enumerable: !0,
+      enumerable: true,
       get: function () {
-        return l.html;
+        return _litHtml2.html;
       }
-    }), Object.defineProperty(exports, "svg", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "svg", {
+      enumerable: true,
       get: function () {
-        return l.svg;
+        return _litHtml2.svg;
       }
-    }), exports.LitElement = void 0;
+    });
+    exports.LitElement = void 0;
 
-    var t = require("lit-html"),
-        r = require("lit-html/lib/shady-render"),
-        n = require("./lib/updating-element.js");
+    var _litHtml = require("lit-html");
 
-    Object.keys(n).forEach(function (t) {
-      "default" !== t && "__esModule" !== t && (Object.prototype.hasOwnProperty.call(e, t) || Object.defineProperty(exports, t, {
-        enumerable: !0,
+    var _shadyRender = require("lit-html/lib/shady-render");
+
+    var _updatingElement = require("./lib/updating-element.js");
+
+    Object.keys(_updatingElement).forEach(function (key) {
+      if (key === "default" || key === "__esModule") return;
+      if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+      Object.defineProperty(exports, key, {
+        enumerable: true,
         get: function () {
-          return n[t];
+          return _updatingElement[key];
         }
-      }));
+      });
     });
 
-    var o = require("./lib/decorators.js");
+    var _decorators = require("./lib/decorators.js");
 
-    Object.keys(o).forEach(function (t) {
-      "default" !== t && "__esModule" !== t && (Object.prototype.hasOwnProperty.call(e, t) || Object.defineProperty(exports, t, {
-        enumerable: !0,
+    Object.keys(_decorators).forEach(function (key) {
+      if (key === "default" || key === "__esModule") return;
+      if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+      Object.defineProperty(exports, key, {
+        enumerable: true,
         get: function () {
-          return o[t];
+          return _decorators[key];
         }
-      }));
+      });
     });
 
-    var l = require("lit-html/lit-html");
+    var _litHtml2 = require("lit-html/lit-html");
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
 
-    let s = class s extends n.UpdatingElement {
-      update(e) {
-        super.update(e);
-        const r = this.render();
-        r instanceof t.TemplateResult && this.constructor.render(r, this.renderRoot, {
-          scopeName: this.localName,
-          eventContext: this
-        });
+
+    let LitElement = class LitElement extends _updatingElement.UpdatingElement {
+      /**
+       * Updates the element. This method reflects property values to attributes
+       * and calls `render` to render DOM via lit-html. Setting properties inside
+       * this method will *not* trigger another update.
+       * * @param _changedProperties Map of changed properties with old values
+       */
+      update(changedProperties) {
+        super.update(changedProperties);
+        const templateResult = this.render();
+
+        if (templateResult instanceof _litHtml.TemplateResult) {
+          this.constructor.render(templateResult, this.renderRoot, {
+            scopeName: this.localName,
+            eventContext: this
+          });
+        }
       }
+      /**
+       * Invoked on each update to perform rendering tasks. This method must return
+       * a lit-html TemplateResult. Setting properties inside this method will *not*
+       * trigger the element to update.
+       */
+
 
       render() {}
 
     };
-    exports.LitElement = s, s.render = r.render;
+    /**
+     * Render method used to render the lit-html TemplateResult to the element's
+     * DOM.
+     * @param {TemplateResult} Template to render.
+     * @param {Element|DocumentFragment} Node into which to render.
+     * @param {String} Element name.
+     */
+
+    exports.LitElement = LitElement;
+    LitElement.render = _shadyRender.render;
   }, {
-    "lit-html": "SP/d",
-    "lit-html/lib/shady-render": "eBH8",
-    "./lib/updating-element.js": "jBO4",
-    "./lib/decorators.js": "QuT6",
-    "lit-html/lit-html": "SP/d"
+    "lit-html": "../node_modules/lit-html/lit-html.js",
+    "lit-html/lib/shady-render": "../node_modules/lit-html/lib/shady-render.js",
+    "./lib/updating-element.js": "../node_modules/@polymer/lit-element/lib/updating-element.js",
+    "./lib/decorators.js": "../node_modules/@polymer/lit-element/lib/decorators.js",
+    "lit-html/lit-html": "../node_modules/lit-html/lit-html.js"
   }],
-  "63XO": [function (require, module, exports) {
+  "Accordion.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.Accordion = void 0;
+      value: true
+    });
+    exports.Accordion = void 0;
 
-    var t = require("@polymer/lit-element");
+    var _litElement = require("@polymer/lit-element");
 
-    let e = class extends t.LitElement {
+    let Accordion = class Accordion extends _litElement.LitElement {
       constructor() {
-        super(), this.ENTER = 13, this.SPACEBAR = 32, this.attributes.open || (this.open = !1), this.openIcon = this.attributes.openIcon ? this.attributes.openIcon.value : "+", this.closeIcon = this.attributes.closeIcon ? this.attributes.closeIcon.value : "×";
+        super();
+        this.ENTER = 13;
+        this.SPACEBAR = 32;
+
+        if (!this.attributes.open) {
+          // if not specified as an attribute, then it's value should be false, not undefined.
+          this.open = false;
+        }
+
+        this.openIcon = this.attributes.openIcon ? this.attributes.openIcon.value : "+";
+        this.closeIcon = this.attributes.closeIcon ? this.attributes.closeIcon.value : "×";
       }
 
       static get properties() {
@@ -1672,21 +3398,40 @@ parcelRequire = function (e, r, n, t) {
       }
 
       firstUpdated() {
-        this.content = this.shadowRoot.querySelector(".content"), this.wrapper = this.shadowRoot.querySelector(".wrapper"), this.initialState = !!this.open;
+        // get the content element.
+        this.content = this.shadowRoot.querySelector('.content');
+        this.wrapper = this.shadowRoot.querySelector('.wrapper');
+        this.initialState = !!this.open;
       }
 
-      _toggleAccordion(t) {
-        if (!(t instanceof MouseEvent || t instanceof KeyboardEvent && (t.keyCode === this.ENTER || t.keyCode === this.SPACEBAR))) return !0;
-        t.preventDefault(), this.open = !this.open, this.open ? (this.setAttribute("open", !0), this.content.style.maxHeight = this.content.scrollHeight + "px", this.wrapper.classList.add("open")) : (this.removeAttribute("open"), this.wrapper.classList.remove("open"), this.content.style.maxHeight = 0);
+      _toggleAccordion(e) {
+        // e.preventDefault();  
+        if (e instanceof MouseEvent || e instanceof KeyboardEvent && (e.keyCode === this.ENTER || e.keyCode === this.SPACEBAR)) {
+          e.preventDefault(); // set open to its opposite boolean.
+
+          this.open = !this.open; // handle the content.
+
+          if (this.open) {
+            this.setAttribute('open', true);
+            this.content.style.maxHeight = this.content.scrollHeight + 'px';
+            this.wrapper.classList.add('open');
+          } else {
+            this.removeAttribute('open');
+            this.wrapper.classList.remove('open');
+            this.content.style.maxHeight = 0;
+          }
+        } else {
+          return true;
+        }
       }
 
       _styles() {
         const {
-          initialState: e,
-          openIcon: o,
-          closeIcon: i
+          initialState,
+          openIcon,
+          closeIcon
         } = this;
-        return t.html`
+        return _litElement.html`
     <style>
      :host {
         display: block;
@@ -1720,17 +3465,17 @@ parcelRequire = function (e, r, n, t) {
       :host .title::after {
         display: inline-block;
         position: relative;
-        content: "${o}";
+        content: "${openIcon}";
         right: 0;
       }
 
       :host .wrapper.open .title::after{
-        content: "${i}"
+        content: "${closeIcon}"
       }
 
       :host .content {
         overflow: hidden;
-        max-height: ${e ? "none" : 0};
+        max-height: ${initialState ? 'none' : 0};
 
         transition: max-height 250ms ease-out;
         background: var(--content-bg, #fafafa);
@@ -1748,9 +3493,9 @@ parcelRequire = function (e, r, n, t) {
 
       render() {
         const {
-          title: e
+          title
         } = this;
-        return t.html`
+        return _litElement.html`
     ${this._styles()}
     <div class="wrapper">
       <button
@@ -1759,7 +3504,7 @@ parcelRequire = function (e, r, n, t) {
         @click="${this._toggleAccordion}"
         @keydown=${this._toggleAccordion}
       >
-        ${e}
+        ${title}
       </button>
 
       <div class="content">
@@ -1772,119 +3517,404 @@ parcelRequire = function (e, r, n, t) {
       }
 
     };
-    exports.Accordion = e;
+    exports.Accordion = Accordion;
   }, {
-    "@polymer/lit-element": "Ml37"
+    "@polymer/lit-element": "../node_modules/@polymer/lit-element/lit-element.js"
   }],
-  "EiTl": [function (require, module, exports) {
+  "TabbedContent.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), exports.TabbedContent = void 0;
-    let e = class extends HTMLElement {
+      value: true
+    });
+    exports.TabbedContent = void 0;
+
+    var _litElement = require("@polymer/lit-element");
+    /* This component is adapted from an example on developers.google.com that we found. */
+
+
+    let TabbedContent = class TabbedContent extends _litElement.LitElement {
       constructor() {
-        super(), this.attachShadow({
-          mode: "open"
-        }).innerHTML = '\n      <style>\n        :host {\n          display: inline-block;\n          width: 650px;\n          font-family: \'Roboto Slab\';\n          contain: content;\n        }\n        :host([background]) {\n          background: var(--background-color, #9E9E9E);\n          border-radius: 10px;\n          padding: 10px;\n        }\n        #panels {\n          box-shadow: 0 2px 2px rgba(0, 0, 0, .3);\n          background: white;\n          border-radius: 3px;\n          padding: 16px;\n          height: 250px;\n          overflow: auto;\n        }\n        #tabs {\n          display: inline-flex;\n          -webkit-user-select: none;\n          user-select: none;\n        }\n        #tabs slot {\n          display: inline-flex; /* Safari bug. Treats <slot> as a parent */\n        }\n        /* Safari does not support #id prefixes on ::slotted\n           See https://bugs.webkit.org/show_bug.cgi?id=160538 */\n        #tabs ::slotted(*) {\n          font: 400 16px/22px \'Roboto\';\n          padding: 16px 8px;\n          margin: 0;\n          text-align: center;\n          width: 100px;\n          text-overflow: ellipsis;\n          white-space: nowrap;\n          overflow: hidden;\n          cursor: pointer;\n          border-top-left-radius: 3px;\n          border-top-right-radius: 3px;\n          background: linear-gradient(#fafafa, #eee);\n          border: none; /* if the user users a <button> */\n        }\n        #tabs ::slotted([aria-selected="true"]) {\n          font-weight: 600;\n          background: white;\n          box-shadow: none;\n        }\n        #tabs ::slotted(:focus) {\n          z-index: 1; /* make sure focus ring doesn\'t get buried */\n        }\n        #panels ::slotted([aria-hidden="true"]) {\n          display: none;\n        }\n      </style>\n      <div id="tabs">\n        <slot id="tabsSlot" name="title"></slot>\n      </div>\n      <div id="panels">\n        <slot id="panelsSlot"></slot>\n      </div>\n    ';
+        super();
       }
 
-      static get selected() {
-        return selected_;
+      static get properties() {
+        return {
+          selected: Boolean
+        };
       }
 
-      static set selected(e) {
-        selected_ = e, this._selectTab(e), this.setAttribute("selected", e);
+      firstUpdated() {
+        this.setAttribute('role', 'tablist');
+        const tabsSlot = this.shadowRoot.querySelector('#tabsSlot');
+        const panelsSlot = this.shadowRoot.querySelector('#panelsSlot');
+        this.tabs = tabsSlot.assignedNodes({
+          flatten: true
+        });
+        this.panels = panelsSlot.assignedNodes({
+          flatten: true
+        }).filter(el => {
+          return el.nodeType === Node.ELEMENT_NODE;
+        }); // Add aria role="tabpanel" to each content panel.
+
+        for (const panel of this.panels) {
+          panel.setAttribute('role', 'tabpanel');
+          panel.setAttribute('tabindex', 0);
+        } // Save refer to we can remove listeners later.
+
+
+        this._boundOnTitleClick = this._onTitleClick.bind(this);
+        this._boundOnKeyDown = this._onKeyDown.bind(this);
+        tabsSlot.addEventListener('click', this._boundOnTitleClick);
+        tabsSlot.addEventListener('keydown', this._boundOnKeyDown);
+        this.selected = this._findFirstSelectedTab() || 0;
       }
 
-      connectedCallback() {
-        this.setAttribute("role", "tablist");
-        const e = this.shadowRoot.querySelector("#tabsSlot"),
-              t = this.shadowRoot.querySelector("#panelsSlot");
-        this.tabs = e.assignedNodes({
-          flatten: !0
-        }), this.panels = t.assignedNodes({
-          flatten: !0
-        }).filter(e => e.nodeType === Node.ELEMENT_NODE);
-
-        for (let [n, s] of this.panels.entries()) s.setAttribute("role", "tabpanel"), s.setAttribute("tabindex", 0);
-
-        this._boundOnTitleClick = this._onTitleClick.bind(this), this._boundOnKeyDown = this._onKeyDown.bind(this), e.addEventListener("click", this._boundOnTitleClick), e.addEventListener("keydown", this._boundOnKeyDown), this.selected = this._findFirstSelectedTab() || 0;
-      }
-
-      disconnectedCallback() {
-        const e = this.shadowRoot.querySelector("#tabsSlot");
-        e.removeEventListener("click", this._boundOnTitleClick), e.removeEventListener("keydown", this._boundOnKeyDown);
+      updated() {
+        this._selectTab(this.selected);
       }
 
       _onTitleClick(e) {
-        "title" === e.target.slot && (this.selected = this.tabs.indexOf(e.target), e.target.focus());
+        if (e.target.slot === 'title') {
+          this.selected = this.tabs.indexOf(e.target);
+          e.target.focus();
+        }
       }
 
       _onKeyDown(e) {
         switch (e.code) {
-          case "ArrowUp":
-          case "ArrowLeft":
-            e.preventDefault(), t = (t = this.selected - 1) < 0 ? this.tabs.length - 1 : t, this.tabs[t].click();
+          case 'ArrowUp':
+          case 'ArrowLeft':
+            let idx;
+            e.preventDefault();
+            idx = this.selected - 1;
+            idx = idx < 0 ? this.tabs.length - 1 : idx;
+            this.tabs[idx].click();
             break;
 
-          case "ArrowDown":
-          case "ArrowRight":
+          case 'ArrowDown':
+          case 'ArrowRight':
             e.preventDefault();
-            var t = this.selected + 1;
-            this.tabs[t % this.tabs.length].click();
+            idx = this.selected + 1;
+            this.tabs[idx % this.tabs.length].click();
+            break;
+
+          default:
+            break;
         }
       }
 
       _findFirstSelectedTab() {
-        let e;
+        let selectedIdx;
 
-        for (let [t, n] of this.tabs.entries()) n.setAttribute("role", "tab"), n.hasAttribute("selected") && (e = t);
+        for (const [i, tab] of this.tabs.entries()) {
+          tab.setAttribute('role', 'tab'); // Allow users to declaratively select a tab
+          // Highlight last tab which has the selected attribute.
 
-        return e;
+          if (tab.hasAttribute('selected')) {
+            selectedIdx = i;
+          }
+        }
+
+        return selectedIdx;
       }
 
-      _selectTab(e = null) {
-        for (let t, n = 0; t = this.tabs[n]; ++n) {
-          let s = n === e;
-          t.setAttribute("tabindex", s ? 0 : -1), t.setAttribute("aria-selected", s), this.panels[n].setAttribute("aria-hidden", !s);
+      _selectTab(idx = null) {
+        this.tabs.forEach((tab, i) => {
+          const select = i === idx;
+          tab.setAttribute('tabindex', select ? 0 : -1);
+          tab.setAttribute('aria-selected', select);
+          this.panels[i].setAttribute('aria-hidden', !select);
+        });
+      }
+
+      _styles() {
+        return _litElement.html`
+    <style>
+        :host {
+          display: block;
+          width: 650px;
+          contain: content;
         }
+        :host([background]) {
+          
+        }
+        #panels {
+          box-shadow: 0 2px 2px rgba(0, 0, 0, .3);
+          background: white;
+          border-radius: 3px;
+          padding: 16px;
+          height: 250px;
+          overflow: auto;
+        }
+        #tabs {
+          display: inline-flex;
+          -webkit-user-select: none;
+          user-select: none;
+        }
+        #tabs slot {
+
+          display: inline-flex; /* Safari bug. Treats <slot> as a parent */
+        }
+        /* Safari does not support #id prefixes on ::slotted
+           See https://bugs.webkit.org/show_bug.cgi?id=160538 */
+        #tabs ::slotted(*) {
+          padding: 16px 8px;
+          margin: 0;
+          text-align: center;
+          width: 100px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+          cursor: pointer;
+          border-top-left-radius: 3px;
+          border-top-right-radius: 3px;
+          background: whitesmoke;
+          outline: none;
+          border: none; /* if the user users a <button> */
+        }
+        #tabs ::slotted([aria-selected="true"]) {
+          font-weight: 600;
+          background: white;
+          box-shadow: none;
+        }
+        #tabs ::slotted(:focus) {
+          ouline:none;
+          border: none;
+          text-decoration: underline;
+
+        }
+        #panels ::slotted([aria-hidden="true"]) {
+          display: none;
+        }
+    </style>
+    `;
+      }
+
+      render() {
+        return _litElement.html`
+      ${this._styles()}
+      <div id="tabs">
+        <slot id="tabsSlot" name="title"></slot>
+      </div>
+
+      <div id="panels">
+        <slot id="panelsSlot"></slot>
+      </div>
+    `;
       }
 
     };
-    exports.TabbedContent = e;
-  }, {}],
-  "Focm": [function (require, module, exports) {
+    exports.TabbedContent = TabbedContent;
+  }, {
+    "@polymer/lit-element": "../node_modules/@polymer/lit-element/lit-element.js"
+  }],
+  "index.js": [function (require, module, exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
-      value: !0
-    }), Object.defineProperty(exports, "execPolyfill", {
-      enumerable: !0,
+      value: true
+    });
+    Object.defineProperty(exports, "execPolyfill", {
+      enumerable: true,
       get: function () {
-        return e.execPolyfill;
+        return _polyfill.execPolyfill;
       }
-    }), Object.defineProperty(exports, "Accordion", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "Accordion", {
+      enumerable: true,
       get: function () {
-        return r.Accordion;
+        return _Accordion.Accordion;
       }
-    }), Object.defineProperty(exports, "TabbedContent", {
-      enumerable: !0,
+    });
+    Object.defineProperty(exports, "TabbedContent", {
+      enumerable: true,
       get: function () {
-        return t.TabbedContent;
+        return _TabbedContent.TabbedContent;
       }
     });
 
-    var e = require("./polyfill"),
-        r = require("./Accordion"),
-        t = require("./TabbedContent");
+    var _polyfill = require("./polyfill");
+
+    var _Accordion = require("./Accordion");
+
+    var _TabbedContent = require("./TabbedContent");
   }, {
-    "./polyfill": "ctdA",
-    "./Accordion": "63XO",
-    "./TabbedContent": "EiTl"
-  }]
-}, {}, ["Focm"], null);
+    "./polyfill": "polyfill.js",
+    "./Accordion": "Accordion.js",
+    "./TabbedContent": "TabbedContent.js"
+  }],
+  "../../../../../../usr/local/lib/node_modules/parcel/src/builtins/hmr-runtime.js": [function (require, module, exports) {
+    var global = arguments[3];
+    var OVERLAY_ID = '__parcel__error__overlay__';
+    var OldModule = module.bundle.Module;
+
+    function Module(moduleName) {
+      OldModule.call(this, moduleName);
+      this.hot = {
+        data: module.bundle.hotData,
+        _acceptCallbacks: [],
+        _disposeCallbacks: [],
+        accept: function (fn) {
+          this._acceptCallbacks.push(fn || function () {});
+        },
+        dispose: function (fn) {
+          this._disposeCallbacks.push(fn);
+        }
+      };
+      module.bundle.hotData = null;
+    }
+
+    module.bundle.Module = Module;
+    var parent = module.bundle.parent;
+
+    if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
+      var hostname = "" || location.hostname;
+      var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+      var ws = new WebSocket(protocol + '://' + hostname + ':' + "55678" + '/');
+
+      ws.onmessage = function (event) {
+        var data = JSON.parse(event.data);
+
+        if (data.type === 'update') {
+          console.clear();
+          data.assets.forEach(function (asset) {
+            hmrApply(global.parcelRequire, asset);
+          });
+          data.assets.forEach(function (asset) {
+            if (!asset.isNew) {
+              hmrAccept(global.parcelRequire, asset.id);
+            }
+          });
+        }
+
+        if (data.type === 'reload') {
+          ws.close();
+
+          ws.onclose = function () {
+            location.reload();
+          };
+        }
+
+        if (data.type === 'error-resolved') {
+          console.log('[parcel] ✨ Error resolved');
+          removeErrorOverlay();
+        }
+
+        if (data.type === 'error') {
+          console.error('[parcel] 🚨  ' + data.error.message + '\n' + data.error.stack);
+          removeErrorOverlay();
+          var overlay = createErrorOverlay(data);
+          document.body.appendChild(overlay);
+        }
+      };
+    }
+
+    function removeErrorOverlay() {
+      var overlay = document.getElementById(OVERLAY_ID);
+
+      if (overlay) {
+        overlay.remove();
+      }
+    }
+
+    function createErrorOverlay(data) {
+      var overlay = document.createElement('div');
+      overlay.id = OVERLAY_ID; // html encode message and stack trace
+
+      var message = document.createElement('div');
+      var stackTrace = document.createElement('pre');
+      message.innerText = data.error.message;
+      stackTrace.innerText = data.error.stack;
+      overlay.innerHTML = '<div style="background: black; font-size: 16px; color: white; position: fixed; height: 100%; width: 100%; top: 0px; left: 0px; padding: 30px; opacity: 0.85; font-family: Menlo, Consolas, monospace; z-index: 9999;">' + '<span style="background: red; padding: 2px 4px; border-radius: 2px;">ERROR</span>' + '<span style="top: 2px; margin-left: 5px; position: relative;">🚨</span>' + '<div style="font-size: 18px; font-weight: bold; margin-top: 20px;">' + message.innerHTML + '</div>' + '<pre>' + stackTrace.innerHTML + '</pre>' + '</div>';
+      return overlay;
+    }
+
+    function getParents(bundle, id) {
+      var modules = bundle.modules;
+
+      if (!modules) {
+        return [];
+      }
+
+      var parents = [];
+      var k, d, dep;
+
+      for (k in modules) {
+        for (d in modules[k][1]) {
+          dep = modules[k][1][d];
+
+          if (dep === id || Array.isArray(dep) && dep[dep.length - 1] === id) {
+            parents.push(k);
+          }
+        }
+      }
+
+      if (bundle.parent) {
+        parents = parents.concat(getParents(bundle.parent, id));
+      }
+
+      return parents;
+    }
+
+    function hmrApply(bundle, asset) {
+      var modules = bundle.modules;
+
+      if (!modules) {
+        return;
+      }
+
+      if (modules[asset.id] || !bundle.parent) {
+        var fn = new Function('require', 'module', 'exports', asset.generated.js);
+        asset.isNew = !modules[asset.id];
+        modules[asset.id] = [fn, asset.deps];
+      } else if (bundle.parent) {
+        hmrApply(bundle.parent, asset);
+      }
+    }
+
+    function hmrAccept(bundle, id) {
+      var modules = bundle.modules;
+
+      if (!modules) {
+        return;
+      }
+
+      if (!modules[id] && bundle.parent) {
+        return hmrAccept(bundle.parent, id);
+      }
+
+      var cached = bundle.cache[id];
+      bundle.hotData = {};
+
+      if (cached) {
+        cached.hot.data = bundle.hotData;
+      }
+
+      if (cached && cached.hot && cached.hot._disposeCallbacks.length) {
+        cached.hot._disposeCallbacks.forEach(function (cb) {
+          cb(bundle.hotData);
+        });
+      }
+
+      delete bundle.cache[id];
+      bundle(id);
+      cached = bundle.cache[id];
+
+      if (cached && cached.hot && cached.hot._acceptCallbacks.length) {
+        cached.hot._acceptCallbacks.forEach(function (cb) {
+          cb();
+        });
+
+        return true;
+      }
+
+      return getParents(global.parcelRequire, id).some(function (id) {
+        return hmrAccept(global.parcelRequire, id);
+      });
+    }
+  }, {}]
+}, {}, ["../../../../../../usr/local/lib/node_modules/parcel/src/builtins/hmr-runtime.js", "index.js"], null);
 },{}],"main.js":[function(require,module,exports) {
 "use strict";
 
@@ -1892,7 +3922,7 @@ var _index = require("../dist/index");
 
 // import '@webcomponents/webcomponentsjs/webcomponents-bundle';
 (() => {
-  if (!!!window.customElements) {
+  if (!window.customElements) {
     (0, _index.execPolyfill)();
   }
 
@@ -1931,7 +3961,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49959" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55177" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
@@ -2074,4 +4104,4 @@ function hmrAccept(bundle, id) {
   });
 }
 },{}]},{},["../../../../../../usr/local/lib/node_modules/parcel/src/builtins/hmr-runtime.js","main.js"], null)
-//# sourceMappingURL=main.1f19ae8e.map
+//# sourceMappingURL=/main.1f19ae8e.map

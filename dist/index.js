@@ -110,8 +110,76 @@ parcelRequire=function(e,r,n,t){var i="function"==typeof parcelRequire&&parcelRe
     </div>
     `}};exports.Accordion=e;
 },{"@polymer/lit-element":"Ml37"}],"EiTl":[function(require,module,exports) {
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.TabbedContent=void 0;let e=class extends HTMLElement{constructor(){super(),this.attachShadow({mode:"open"}).innerHTML='\n      <style>\n        :host {\n          display: inline-block;\n          width: 650px;\n          font-family: \'Roboto Slab\';\n          contain: content;\n        }\n        :host([background]) {\n          background: var(--background-color, #9E9E9E);\n          border-radius: 10px;\n          padding: 10px;\n        }\n        #panels {\n          box-shadow: 0 2px 2px rgba(0, 0, 0, .3);\n          background: white;\n          border-radius: 3px;\n          padding: 16px;\n          height: 250px;\n          overflow: auto;\n        }\n        #tabs {\n          display: inline-flex;\n          -webkit-user-select: none;\n          user-select: none;\n        }\n        #tabs slot {\n          display: inline-flex; /* Safari bug. Treats <slot> as a parent */\n        }\n        /* Safari does not support #id prefixes on ::slotted\n           See https://bugs.webkit.org/show_bug.cgi?id=160538 */\n        #tabs ::slotted(*) {\n          font: 400 16px/22px \'Roboto\';\n          padding: 16px 8px;\n          margin: 0;\n          text-align: center;\n          width: 100px;\n          text-overflow: ellipsis;\n          white-space: nowrap;\n          overflow: hidden;\n          cursor: pointer;\n          border-top-left-radius: 3px;\n          border-top-right-radius: 3px;\n          background: linear-gradient(#fafafa, #eee);\n          border: none; /* if the user users a <button> */\n        }\n        #tabs ::slotted([aria-selected="true"]) {\n          font-weight: 600;\n          background: white;\n          box-shadow: none;\n        }\n        #tabs ::slotted(:focus) {\n          z-index: 1; /* make sure focus ring doesn\'t get buried */\n        }\n        #panels ::slotted([aria-hidden="true"]) {\n          display: none;\n        }\n      </style>\n      <div id="tabs">\n        <slot id="tabsSlot" name="title"></slot>\n      </div>\n      <div id="panels">\n        <slot id="panelsSlot"></slot>\n      </div>\n    '}static get selected(){return selected_}static set selected(e){selected_=e,this._selectTab(e),this.setAttribute("selected",e)}connectedCallback(){this.setAttribute("role","tablist");const e=this.shadowRoot.querySelector("#tabsSlot"),t=this.shadowRoot.querySelector("#panelsSlot");this.tabs=e.assignedNodes({flatten:!0}),this.panels=t.assignedNodes({flatten:!0}).filter(e=>e.nodeType===Node.ELEMENT_NODE);for(let[n,s]of this.panels.entries())s.setAttribute("role","tabpanel"),s.setAttribute("tabindex",0);this._boundOnTitleClick=this._onTitleClick.bind(this),this._boundOnKeyDown=this._onKeyDown.bind(this),e.addEventListener("click",this._boundOnTitleClick),e.addEventListener("keydown",this._boundOnKeyDown),this.selected=this._findFirstSelectedTab()||0}disconnectedCallback(){const e=this.shadowRoot.querySelector("#tabsSlot");e.removeEventListener("click",this._boundOnTitleClick),e.removeEventListener("keydown",this._boundOnKeyDown)}_onTitleClick(e){"title"===e.target.slot&&(this.selected=this.tabs.indexOf(e.target),e.target.focus())}_onKeyDown(e){switch(e.code){case"ArrowUp":case"ArrowLeft":e.preventDefault(),t=(t=this.selected-1)<0?this.tabs.length-1:t,this.tabs[t].click();break;case"ArrowDown":case"ArrowRight":e.preventDefault();var t=this.selected+1;this.tabs[t%this.tabs.length].click()}}_findFirstSelectedTab(){let e;for(let[t,n]of this.tabs.entries())n.setAttribute("role","tab"),n.hasAttribute("selected")&&(e=t);return e}_selectTab(e=null){for(let t,n=0;t=this.tabs[n];++n){let s=n===e;t.setAttribute("tabindex",s?0:-1),t.setAttribute("aria-selected",s),this.panels[n].setAttribute("aria-hidden",!s)}}};exports.TabbedContent=e;
-},{}],"Focm":[function(require,module,exports) {
+"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.TabbedContent=void 0;var t=require("@polymer/lit-element");let e=class extends t.LitElement{constructor(){super()}static get properties(){return{selected:Boolean}}firstUpdated(){this.setAttribute("role","tablist");const t=this.shadowRoot.querySelector("#tabsSlot"),e=this.shadowRoot.querySelector("#panelsSlot");this.tabs=t.assignedNodes({flatten:!0}),this.panels=e.assignedNodes({flatten:!0}).filter(t=>t.nodeType===Node.ELEMENT_NODE);for(const s of this.panels)s.setAttribute("role","tabpanel"),s.setAttribute("tabindex",0);this._boundOnTitleClick=this._onTitleClick.bind(this),this._boundOnKeyDown=this._onKeyDown.bind(this),t.addEventListener("click",this._boundOnTitleClick),t.addEventListener("keydown",this._boundOnKeyDown),this.selected=this._findFirstSelectedTab()||0}updated(){this._selectTab(this.selected)}_onTitleClick(t){"title"===t.target.slot&&(this.selected=this.tabs.indexOf(t.target),t.target.focus())}_onKeyDown(t){switch(t.code){case"ArrowUp":case"ArrowLeft":let e;t.preventDefault(),e=(e=this.selected-1)<0?this.tabs.length-1:e,this.tabs[e].click();break;case"ArrowDown":case"ArrowRight":t.preventDefault(),e=this.selected+1,this.tabs[e%this.tabs.length].click()}}_findFirstSelectedTab(){let t;for(const[e,s]of this.tabs.entries())s.setAttribute("role","tab"),s.hasAttribute("selected")&&(t=e);return t}_selectTab(t=null){this.tabs.forEach((e,s)=>{const i=s===t;e.setAttribute("tabindex",i?0:-1),e.setAttribute("aria-selected",i),this.panels[s].setAttribute("aria-hidden",!i)})}_styles(){return t.html`
+    <style>
+        :host {
+          display: block;
+          width: 650px;
+          contain: content;
+        }
+        :host([background]) {
+          
+        }
+        #panels {
+          box-shadow: 0 2px 2px rgba(0, 0, 0, .3);
+          background: white;
+          border-radius: 3px;
+          padding: 16px;
+          height: 250px;
+          overflow: auto;
+        }
+        #tabs {
+          display: inline-flex;
+          -webkit-user-select: none;
+          user-select: none;
+        }
+        #tabs slot {
+
+          display: inline-flex; /* Safari bug. Treats <slot> as a parent */
+        }
+        /* Safari does not support #id prefixes on ::slotted
+           See https://bugs.webkit.org/show_bug.cgi?id=160538 */
+        #tabs ::slotted(*) {
+          padding: 16px 8px;
+          margin: 0;
+          text-align: center;
+          width: 100px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+          cursor: pointer;
+          border-top-left-radius: 3px;
+          border-top-right-radius: 3px;
+          background: whitesmoke;
+          outline: none;
+          border: none; /* if the user users a <button> */
+        }
+        #tabs ::slotted([aria-selected="true"]) {
+          font-weight: 600;
+          background: white;
+          box-shadow: none;
+        }
+        #tabs ::slotted(:focus) {
+          ouline:none;
+          border: none;
+          text-decoration: underline;
+
+        }
+        #panels ::slotted([aria-hidden="true"]) {
+          display: none;
+        }
+    </style>
+    `}render(){return t.html`
+      ${this._styles()}
+      <div id="tabs">
+        <slot id="tabsSlot" name="title"></slot>
+      </div>
+
+      <div id="panels">
+        <slot id="panelsSlot"></slot>
+      </div>
+    `}};exports.TabbedContent=e;
+},{"@polymer/lit-element":"Ml37"}],"Focm":[function(require,module,exports) {
 "use strict";Object.defineProperty(exports,"__esModule",{value:!0}),Object.defineProperty(exports,"execPolyfill",{enumerable:!0,get:function(){return e.execPolyfill}}),Object.defineProperty(exports,"Accordion",{enumerable:!0,get:function(){return r.Accordion}}),Object.defineProperty(exports,"TabbedContent",{enumerable:!0,get:function(){return t.TabbedContent}});var e=require("./polyfill"),r=require("./Accordion"),t=require("./TabbedContent");
 },{"./polyfill":"ctdA","./Accordion":"63XO","./TabbedContent":"EiTl"}]},{},["Focm"], null)
 //# sourceMappingURL=/index.map
