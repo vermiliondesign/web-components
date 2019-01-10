@@ -1,7 +1,7 @@
 # Vermilion Design + Digital Web Components
   This repository is a working library of web components built on the Polymer / LitElement platforms.
 
-##Demo and list of components and usage:
+## Demo and list of components and usage:
 
 [Demo and Component Documentation](https://vermiliondesign.github.io/web-components/)
 
