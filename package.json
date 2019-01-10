@@ -7,8 +7,8 @@
     "start": "parcel watch src/index.js",
     "dev": "parcel demo/index.html -d docs",
     "build": "parcel build src/index.js",
-    "demo": "parcel demo/index.html -d docs",
-    "build-demo": "parcel build demo/index.html -d docs",
+    "demo": "parcel demo/index.html -d docs --public-url ./",
+    "build-demo": "parcel build demo/index.html -d docs --public-url ./",
     "package": "npm run build && npm run build-demo"
   },
   "keywords": [

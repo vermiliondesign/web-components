@@ -1,4 +1,4 @@
-import {execPolyfill} from './polyfill';
+import { execPolyfill } from './polyfill';
 import { Accordion } from './Accordion';
 import { TabbedContent } from './TabbedContent';
 
