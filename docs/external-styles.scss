@@ -1,0 +1,42 @@
+
+/* #region: Base Styles */
+  $text-color: #222;
+  $vermilion: #af1b1b;
+
+  body {
+    margin: 0;
+    font-family: Avenir, sans-serif;
+    color: $text-color;
+  }
+
+  header {
+    text-align: center;
+    color: $vermilion;
+  }
+
+  main {
+    max-width: 960px;
+    margin: auto;
+    padding: 1rem 2rem;
+  }
+
+  pre {
+    font-size: 14px;
+    font-family: Input-Mono, Inconsolata, monaco, monospace;
+  }
+/* #endregion: Base Styles */
+
+
+/* #region: Accordion */
+
+  vm-accordion {
+    background: whitesmoke;
+    // --bg: whitesmoke;
+    // --color: #222;
+    // --content-bg: lightgrey;
+    // --content-padding: 2rem;
+    // --title-border: solid 1px black;
+    // --title-padding: .5rem 1rem;
+    margin-bottom: .5rem;
+  }
+/* #endregion: Accordion */

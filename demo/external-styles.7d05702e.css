@@ -1,0 +1,31 @@
+/* #region: Base Styles */
+body {
+  margin: 0;
+  font-family: Avenir, sans-serif;
+  color: #222;
+}
+
+header {
+  text-align: center;
+  color: #af1b1b;
+}
+
+main {
+  max-width: 960px;
+  margin: auto;
+  padding: 1rem 2rem;
+}
+
+pre {
+  font-size: 14px;
+  font-family: Input-Mono, Inconsolata, monaco, monospace;
+}
+
+/* #endregion: Base Styles */
+/* #region: Accordion */
+vm-accordion {
+  background: whitesmoke;
+  margin-bottom: 0.5rem;
+}
+
+/* #endregion: Accordion */

@@ -1,0 +1,24 @@
+<pre><code>
+  <?php 
+  
+  /**
+   * Add support for SVGs to wordpress media Library.
+   */
+  
+  Action::add('upload_mimes', function($mimes) {
+    $mimes['svg'] = 'image/svg+xml';
+    return $mimes;
+  });
+  
+  Action::add('wp_mime_type_icon', function($icon, $mime, $post_id) {
+      if ($mime == 'image/svg+xml') {
+          $icon = wp_get_attachment_url($post_id);
+      }
+  
+      return $icon;
+  }, 10, 3);
+  
+  Action::add('admin_enqueue_scripts', function() {
+      wp_add_inline_style('wp-admin', '.attachment .type-image[class*="subtype-svg"] .filename { display: none; } .attachment .type-image[class*="subtype-svg"] .thumbnail .centered img.icon { transform: translate(-50%, -50%); }');
+  });
+</code></pre>
